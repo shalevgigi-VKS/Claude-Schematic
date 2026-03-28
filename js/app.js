@@ -76,6 +76,160 @@ const HE_SKILLS = {
   'commit':                   'יצירת commit מסוגנן',
 };
 
+// ── Hebrew: Modes ──────────────────────────────────────────────────────────
+const HE_MODES = {
+  'architect_mode':            'מצב ברירת מחדל — קרא → בדוק → תכנן → אשר → בצע',
+  'audit_mode':                'בדיקה בטוחה בלבד — לא מוחק, לא יוצר, רק מנתח ומדווח',
+  'build_mode':                'ביצוע מבוקר — פועל רק לפי תוכנית מאושרת, מעדיף מיזוג',
+  'consolidation_mode':        'גיבוש זיכרון — ניקוי כפילויות, זיהוי סתירות, ארכיב',
+  'document_ingestion_mode':   'קליטת מסמכים — עיבוד ותיוק ידע חיצוני',
+  'evolution_pathways_mode':   'מסלולי אבולוציה — ניתוח נתיבי שדרוג למערכת',
+  'external_skill_intake_mode':'קליטת סקיל חיצוני — הערכה ושילוב בטוח',
+  'integration_mode':          'שילוב כלים — בדיקה, אימות ורישום MCPs ו-CLIs',
+  'knowledge_mode':            'שילוב ידע — 5 שלבי הערכה, ביצוע רק אחרי אישור',
+  'monthly_calibration_mode':  'כיול חודשי — בריאות מערכת, עדכון זיכרון, ניקוי',
+  'project_closure_mode':      'סגירת פרויקט — תיעוד לקחים, עדכון skills registry',
+  'project_status_review_mode':'סקירת סטטוס — בדיקת התקדמות כל הפרויקטים',
+  'security_scan_mode':        'סריקת אבטחה — פגיעויות OWASP, סודות חשופים',
+  'shadow_agent_mode':         'סוכן צל — רץ אוטומטי, משווה מציאות מול זיכרון',
+  'README':                    'מדריך למצבי המערכת',
+};
+
+// ── Hebrew: MCP Servers ─────────────────────────────────────────────────────
+const HE_MCP = {
+  'everything-claude-code (ECC)': 'מערכת הרחבת Claude Code — סוכנים, סקילים, hooks, פקודות',
+  'gh — GitHub CLI':              'GitHub CLI — repos, PRs, issues, workflows מהטרמינל',
+  'context7':                     'תיעוד עדכני של ספריות — React, Next.js, Prisma ועוד',
+  'Context7':                     'תיעוד עדכני של ספריות — API עכשווי תמיד',
+  'Playwright':                   'אוטומציית דפדפן — E2E, צילומי מסך, Chrome/Firefox',
+  'playwright':                   'אוטומציית דפדפן — E2E, צילומי מסך, Chrome/Firefox',
+  'Figma':                        'שרת Figma — קריאת עיצובים, Code Connect, HTML/Tailwind',
+  'figma':                        'שרת Figma — קריאת עיצובים, Code Connect',
+  'Gmail':                        'Gmail — חיפוש, קריאה, יצירת טיוטות ממש Claude Code',
+  'gmail':                        'Gmail — חיפוש, קריאה, יצירת טיוטות',
+  'Google Calendar':              'Google Calendar — אירועים, פנוי/תפוס, תזמון פגישות',
+  'Google Stitch MCP':            'Google Labs UI — ממשקים מטקסט, HTML/Tailwind',
+  'mcp2cli':                      'ניתוב MCP ל-CLI — חוסך טוקנים, CLI First',
+  'claudeusage-mcp':              'מעקב שימוש Claude Pro/Max בזמן אמת',
+  'tradingview-mcp':              'נתוני TradingView — פרויקטי פיננסים ומסחר',
+  'gsd-build/gsd-2':              'TypeScript meta-prompting — פיתוח מבוסס מפרטים',
+};
+
+// ── Hebrew: Hooks descriptions ──────────────────────────────────────────────
+const HE_HOOKS_KNOWN = [
+  ['Block git hook-bypass',    'חוסם --no-verify — מגן על pre-commit ו-pre-push hooks',     'PreToolUse'],
+  ['Auto-start dev servers',   'מפעיל dev servers ב-tmux לפי שם תיקייה אוטומטית',          'PreToolUse'],
+  ['Reminder to use tmux',     'תזכורת להשתמש ב-tmux לפקודות ממושכות',                     'PreToolUse'],
+  ['Reminder before git push', 'תזכורת לסקור שינויים לפני git push',                       'PreToolUse'],
+  ['doc-file-warning',         'אזהרה לפני יצירת קובץ תיעוד — מניעת יצירה מיותרת',        'PreToolUse'],
+  ['memory-heartbeat',         'עדכון זיכרון אחרי כל כתיבה — שומר פטרנים לשימוש חוזר',   'PostToolUse'],
+  ['project-guard',            'Project Isolation — מונע כתיבה מחוץ לתיקיית הפרויקט',     'PostToolUse'],
+  ['security-check',           'בדיקת אבטחה לפני Bash — מסנן פקודות מסוכנות',             'PreToolUse'],
+  ['ntfy',                     'שליחת התראה ל-iPhone ב-ntfy.sh בסיום session',              'Stop'],
+  ['notification',             'התראת iPhone ב-ntfy.sh',                                    'Stop'],
+];
+
+function getHookDesc(h) {
+  const desc = (h.description || '') + ' ' + (h.script || '');
+  for (const [kw, he] of HE_HOOKS_KNOWN) {
+    if (desc.toLowerCase().includes(kw.toLowerCase()) ||
+        (h.script || '').toLowerCase().includes(kw.toLowerCase())) return he;
+  }
+  if (h.type === 'Stop') return 'פועל בסיום session';
+  if (h.type === 'PreToolUse') return `בדיקה לפני שימוש ב-${h.trigger || 'כלי'}`;
+  if (h.type === 'PostToolUse') return `פעולה אחרי שימוש ב-${h.trigger || 'כלי'}`;
+  return h.description || h.trigger || '';
+}
+
+// ── Hebrew: Memory types ────────────────────────────────────────────────────
+const HE_MEMORY_TYPE = {
+  'feedback':  'משוב — הנחיות כיצד לעבוד, מה לעשות ומה להימנע ממנו',
+  'user':      'פרופיל משתמש — תפקיד, תחומי ידע, העדפות עבודה',
+  'project':   'פרויקט — מצב, יעדים, החלטות ותאריכי יעד',
+  'reference': 'מקורות — איפה למצוא מידע במערכות חיצוניות',
+  'memory':    'זיכרון כללי',
+};
+
+// ── Hebrew: Rules ──────────────────────────────────────────────────────────
+const HE_RULES = {
+  'common':      'כללים אוניברסליים — immutability, error handling, security, testing לכל שפה',
+  'typescript':  'TypeScript/JS — type safety, interfaces, async/await, Zod validation',
+  'python':      'Python — PEP 8, type annotations, pytest, black/ruff/bandit',
+  'golang':      'Go — idiomatic patterns, goroutines, error wrapping',
+  'rust':        'Rust — ownership, lifetimes, cargo, unsafe guidelines',
+  'swift':       'Swift — iOS/macOS, async/await, SwiftUI patterns',
+  'kotlin':      'Kotlin/Android — Coroutines, Compose, KMP patterns',
+  'java':        'Java/Spring Boot — layered architecture, JPA, security',
+  'cpp':         'C++ — memory safety, templates, CMake, RAII',
+  'csharp':      'C# — .NET patterns, async, LINQ, DI',
+  'php':         'PHP — Laravel/Symfony patterns, PSR standards',
+  'perl':        'Perl — scripting patterns, regex, file handling',
+};
+
+// ── Hebrew: Commands ───────────────────────────────────────────────────────
+const HE_COMMANDS = {
+  'plan':              'תכנון יישום — דרישות + סיכונים לפני כתיבת קוד',
+  'code-review':       'ביקורת קוד — אבטחה, איכות, סטנדרטים לפני commit',
+  'tdd':               'TDD — טסטים קודם, יישום אחר כך, כיסוי 80%+',
+  'learn':             'למד מה-session — חלץ פטרנים לשימוש חוזר',
+  'checkpoint':        'נקודת ביקורת — שמירת מצב workflow',
+  'build-fix':         'תיקון build — שגיאות TypeScript/Webpack במינימום',
+  'e2e':               'בדיקות E2E — Playwright על זרימות קריטיות',
+  'docs':              'עדכון תיעוד — CLAUDE.md, READMEs, codemaps',
+  'refactor-clean':    'ניקוי קוד מת — knip, depcheck, הסרה בטוחה',
+  'verify':            'אימות מקיף — בדיקת מצב הקוד הנוכחי',
+  'orchestrate':       'אורקסטרציה — ניהול זרימת עבודה רב-סוכני',
+  'multi-plan':        'תכנון רב-מודלי — Claude + Codex + Gemini',
+  'multi-execute':     'ביצוע רב-מודלי — פרוטוטייפ → Claude → audit',
+  'multi-workflow':    'workflow שלם — מחקר → תכנון → ביצוע → אופטימיזציה',
+  'multi-frontend':    'Frontend workflow — Gemini מוביל, React/Next.js',
+  'multi-backend':     'Backend workflow — Codex מוביל, API/DB',
+  'model-route':       'בחירת מודל — Haiku/Sonnet/Opus לפי מורכבות',
+  'loop-start':        'לולאה אוטונומית — הפעלה עם ברירות בטוחות',
+  'loop-status':       'סטטוס לולאה — התקדמות ואיתותי כשל',
+  'save-session':      'שמירת session — state לקובץ ~/.claude/sessions/',
+  'resume-session':    'חזרה ל-session — טעינת context מהקובץ האחרון',
+  'sessions':          'ניהול sessions — היסטוריה, aliases, metadata',
+  'quality-gate':      'quality pipeline — ECC על קובץ או פרויקט',
+  'evolve':            'אבולוציה — הצעות שדרוג למערכת Claude הנוכחית',
+  'harness-audit':     'audit תשתית — scorecard עדיפויות ממוין',
+  'pm2':               'PM2 — ניהול תהליכי Node.js ב-production',
+  'python-review':     'ביקורת Python — PEP 8, type hints, אבטחה',
+  'rust-review':       'ביקורת Rust — ownership, lifetimes, unsafe',
+  'rust-build':        'תיקון Rust — borrow checker, Cargo',
+  'rust-test':         'TDD ל-Rust — cargo-llvm-cov, 80%+',
+  'cpp-review':        'ביקורת C++ — memory safety, concurrency',
+  'cpp-build':         'תיקון C++ — CMake, linker',
+  'cpp-test':          'בדיקות C++ — Google Test',
+  'go-review':         'ביקורת Go — idiomatic, goroutines',
+  'go-build':          'תיקון Go — go vet, לינקר',
+  'go-test':           'בדיקות Go — testify, coverage',
+  'kotlin-review':     'ביקורת Kotlin — coroutines, Compose',
+  'kotlin-build':      'תיקון Kotlin/Gradle',
+  'kotlin-test':       'בדיקות Kotlin — JUnit, MockK',
+  'gradle-build':      'תיקון Gradle — dependencies, build scripts',
+  'instinct-export':   'ייצוא instincts — שמירת תובנות session',
+  'instinct-import':   'ייבוא instincts — טעינת תובנות קודמות',
+  'instinct-status':   'סטטוס instincts — רשימת תובנות פעילות',
+  'learn-eval':        'הערכת למידה — איכות הסקילים שנוצרו',
+  'aside':             'הצדה — שמירת מחשבה לצד session הנוכחי',
+  'context-budget':    'ניהול context — תקציב טוקנים ומצב דחיסה',
+  'eval':              'הרצת evals — מדידת ביצועי מודל על benchmark',
+  'prompt-optimize':   'אופטימיזציית prompt — ניתוח ושיפור ללא ביצוע',
+  'prune':             'גיזום — קבצים/תלויות מיותרים',
+  'projects':          'סקירת פרויקטים — סטטוס כל הפרויקטים',
+  'promote':           'קידום — העברת code/config בין סביבות',
+  'rules-distill':     'חילוץ כללים — מ-skills לעקרונות כלליים',
+  'skill-create':      'יצירת סקיל — תיעוד פטרן חדש עם frontmatter',
+  'skill-health':      'בריאות סקילים — בדיקה ועדכון status',
+  'setup-pm':          'הגדרת package manager — npm/pnpm/yarn/bun',
+  'test-coverage':     'כיסוי טסטים — ניתוח gap, ייצור טסטים חסרים',
+  'update-codemaps':   'עדכון codemaps — תיעוד ארכיטקטורה lean',
+  'update-docs':       'עדכון docs — סנכרון תיעוד עם קוד',
+  'devfleet':          'DevFleet — ניהול צוות סוכני פיתוח',
+  'claw':              'CLAW — מצב Claude Agent מתקדם',
+};
+
 // ── Init & Data ────────────────────────────────────────────────────────────
 async function init() {
   showLoading(true);
@@ -159,18 +313,22 @@ function renderGlobalTree() {
         a => makeItemNode(a.name, HE_AGENTS[a.name] || a.purpose, HE_AGENTS_DETAIL[a.name] || a.purpose)),
       makeCategoryNode('skills',     'סקילים',    g.skills,
         s => makeItemNode(s.name, HE_SKILLS[s.name] || s.purpose, s.purpose, s.status && s.status !== 'active' ? s.status : null)),
-      makeCategoryNode('mcp_servers','MCP שרתים', g.mcp_servers,
-        m => makeItemNode(m.name, m.purpose, null, m.tier || null)),
+      makeCategoryNode('mcp_servers','MCP שרתים', g.mcp_servers.filter(m => m.name && m.name !== '[Integration Name]' && m.purpose && m.purpose.length > 3),
+        m => makeItemNode(m.name, HE_MCP[m.name] || m.purpose, null, m.tier || null)),
       makeCategoryNode('modes',      'מצבים',     g.modes,
-        m => makeItemNode(m.name.replace('_mode',''), m.trigger, null, m.version ? `v${m.version}` : null)),
+        m => makeItemNode(m.name.replace(/_mode$/,''), HE_MODES[m.name] || m.description || m.trigger, null, m.version ? `v${m.version}` : null)),
       makeCategoryNode('hooks',      'Hooks',     g.hooks,
-        (h,i) => makeItemNode(h.type || `Hook ${i+1}`, h.trigger, null, h.script ? h.script.split('/').pop() : null)),
+        (h,i) => {
+          const label = h.description ? h.description.substring(0,35) : (h.trigger || `Hook ${i+1}`);
+          const he = getHookDesc(h);
+          return makeItemNode(label, he, null, h.type);
+        }),
       makeCategoryNode('rules',      'כללים',     buildRulesItems(g.rules),
         r => makeItemNode(r.name, r.he, null, r.tag)),
       makeCategoryNode('memory',     'זיכרון',    g.memory,
-        m => makeItemNode(m.file, m.name !== m.file ? m.name : null, null, m.type)),
+        m => makeItemNode(m.name || m.file, HE_MEMORY_TYPE[m.type] || m.description || m.type, null, m.type)),
       makeCategoryNode('commands',   'פקודות',    g.commands,
-        c => makeItemNode(`/${c.name}`, null, null, c.category !== 'general' ? c.category : null)),
+        c => makeItemNode(`/${c.name}`, HE_COMMANDS[c.name] || c.description || null, null, c.category !== 'general' ? c.category : null)),
       {
         icon: '📁', label: 'פרויקטים', count: (snapshotData.projects||[]).length,
         color: COLORS.getCategory('projects').border, expanded: false,
@@ -185,8 +343,8 @@ function renderGlobalTree() {
 
 function buildRulesItems(rules) {
   if (!rules) return [];
-  const items = [{ name: 'Common', he: `${rules.common_count || 0} כללים משותפים`, tag: '' }];
-  (rules.languages || []).forEach(l => items.push({ name: l, he: `כללים ל-${l}`, tag: '' }));
+  const items = [{ name: 'common', he: HE_RULES['common'] || `${rules.common_count || 0} כללים משותפים`, tag: `${rules.common_count||0} קבצים` }];
+  (rules.languages || []).forEach(l => items.push({ name: l, he: HE_RULES[l] || `כללים ל-${l}`, tag: '' }));
   return items;
 }
 
@@ -352,16 +510,18 @@ function buildTreeDOM(node, depth) {
     dot.textContent = '○';
     row.appendChild(dot);
 
-    // Name — English names get LTR
+    // Name — English names get LTR + UPPERCASE
     const nameEl = document.createElement('span');
-    const isEnName = node.name && /^[a-z0-9\-\/\._]+$/i.test(node.name);
+    const rawName = node.name || '';
+    const isEnName = rawName && /^[/a-z0-9\-\._]+$/i.test(rawName);
     if (isEnName || node.isEn) {
       nameEl.className = 'tree-leaf-name tree-en';
       nameEl.dir = 'ltr';
+      nameEl.textContent = rawName.toUpperCase();
     } else {
       nameEl.className = 'tree-leaf-name';
+      nameEl.textContent = rawName;
     }
-    nameEl.textContent = node.name || '';
     row.appendChild(nameEl);
 
     // Tag badge

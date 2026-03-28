@@ -172,6 +172,7 @@ body {
 
 /* Branch row */
 .tree-row {
+  position: relative;
   display: flex; align-items: flex-start; flex-wrap: wrap;
   gap: 6px; padding: 13px 18px 13px 14px;
   border-bottom: 1px solid rgba(79,110,247,0.07);
@@ -207,10 +208,38 @@ body {
   box-shadow: 0 3px 10px rgba(0,0,0,0.15);
 }
 
-/* Children container */
+/* Children container — real tree lines */
 .tree-children {
-  border-right: 2px solid rgba(79,110,247,0.15);
+  position: relative;
   margin-right: 28px;
+  padding-right: 2px;
+}
+
+/* Vertical trunk line */
+.tree-children::before {
+  content: '';
+  position: absolute;
+  right: -14px;
+  top: 6px;
+  bottom: 18px;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(79,110,247,0.45), rgba(79,110,247,0.05));
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* Horizontal branch connector per child */
+.tree-children > .tree-node > .tree-row::before,
+.tree-children > .tree-leaf > .tree-row::before {
+  content: '';
+  position: absolute;
+  right: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 2px;
+  background: rgba(79,110,247,0.3);
+  pointer-events: none;
 }
 
 /* Leaf row */
