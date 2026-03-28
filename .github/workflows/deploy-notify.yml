@@ -35,19 +35,20 @@ jobs:
       - name: Notify iPhone — site updated
         if: success()
         run: |
-          DEPLOY_TIME=$(TZ=Asia/Jerusalem date +'%d.%m.%Y %H:%M')
-          curl -s -X POST https://ntfy.sh/ClaudeCode \
-            -H "Title: אבולוציה סכמטית — עודכן ✅" \
+          DEPLOY_TIME=$(TZ=Asia/Jerusalem date +'%d.%m.%Y %H:%M IL')
+          curl -s -X POST https://ntfy.sh/CloudeCode \
+            -H "Title: אבולוציה סכמטית — עיצוב חדש נפרס ✅" \
             -H "Priority: default" \
             -H "Tags: brain" \
             -H "Click: ${{ steps.deploy.outputs.page_url }}" \
-            -d "האתר עודכן בהצלחה — ${DEPLOY_TIME} IL"
+            -d "מפת המערכת עודכנה ב-GitHub Pages — ${DEPLOY_TIME}"
 
       - name: Notify iPhone — deploy failed
         if: failure()
         run: |
-          curl -s -X POST https://ntfy.sh/ClaudeCode \
-            -H "Title: אבולוציה סכמטית — כשלון ⚠️" \
+          NOW=$(TZ=Asia/Jerusalem date +'%d.%m.%Y %H:%M IL')
+          curl -s -X POST https://ntfy.sh/CloudeCode \
+            -H "Title: אבולוציה סכמטית — פריסה נכשלה ⚠️" \
             -H "Priority: high" \
             -H "Tags: x" \
-            -d "פריסה נכשלה — בדוק GitHub Actions"
+            -d "פריסה נכשלה — $NOW — בדוק GitHub Actions"
