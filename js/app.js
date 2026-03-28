@@ -1,6 +1,6 @@
 /**
- * Schematic Evolution — App Logic v3.0
- * Visual system map + Hebrew descriptions + card grid
+ * Schematic Evolution — App Logic v4.0
+ * Drill-down interactive tree — no D3, pure HTML/CSS/JS
  */
 let snapshotData = null, currentView = 'global';
 
@@ -10,62 +10,52 @@ const DATA_URL = (() => {
   return base + 'data/snapshot.json?t=' + Date.now();
 })();
 
-// One-sentence Hebrew descriptions for agents
+// ── Hebrew one-liners ──────────────────────────────────────────────────────
 const HE_AGENTS = {
-  'architect':            'מומחה ארכיטקטורת תוכנה — עיצוב מערכת, ניתוח ועסקיות',
-  'build-error-resolver': 'פותר שגיאות Build ו-TypeScript — מתקן במינימום שינויים',
-  'chief-of-staff':       'מנהל תקשורת — מיון מיילים, Slack, LINE',
-  'code-reviewer':        'מבקר קוד — איכות, אבטחה ותחזוקה',
-  'cpp-build-resolver':   'פותר שגיאות בנייה C++, CMake ולינקר',
-  'cpp-reviewer':         'מבקר קוד C++ — ניהול זיכרון, מקביליות, ביצועים',
-  'database-reviewer':    'מומחה PostgreSQL — ביצועים, סכמה, אבטחה',
-  'doc-updater':          'מעדכן תיעוד ו-codemaps — CLAUDE.md, READMEs',
-  'e2e-runner':           'מריץ בדיקות E2E עם Playwright — זרימות משתמש קריטיות',
+  'architect':            'מומחה ארכיטקטורת תוכנה — עיצוב מערכת, ניתוח טכני, החלטות עיצוב',
+  'build-error-resolver': 'פותר שגיאות Build ו-TypeScript במינימום שינויים',
+  'chief-of-staff':       'ראש מטה תקשורת — מיון מיילים, Slack, LINE, Messenger',
+  'code-reviewer':        'מבקר קוד — איכות, אבטחה ותחזוקה אחרי כל כתיבה',
+  'cpp-build-resolver':   'פותר שגיאות C++, CMake, qllinker',
+  'cpp-reviewer':         'מבקר C++ — ניהול זיכרון, מקביליות, ביצועים',
+  'database-reviewer':    'מומחה PostgreSQL — שאילתות, סכמה, ביצועים, אבטחה',
+  'doc-updater':          'מעדכן תיעוד — CLAUDE.md, READMEs, codemaps',
+  'e2e-runner':           'מריץ בדיקות E2E עם Playwright על זרימות קריטיות',
   'flutter-reviewer':     'מבקר Flutter/Dart — State Management, ביצועים',
-  'general-purpose':      'סוכן כללי — חיפוש, מחקר, ניתוח קבצים',
-  'go-build-resolver':    'פותר שגיאות Build ב-Go',
-  'go-reviewer':          'מבקר קוד Go — פטרנים, concurrency, טיפול שגיאות',
+  'general-purpose':      'סוכן כללי לחיפוש, מחקר ומשימות מורכבות',
+  'go-build-resolver':    'פותר שגיאות Build ו-Go vet',
+  'go-reviewer':          'מבקר Go — פטרנים, concurrency, טיפול שגיאות',
   'harness-optimizer':    'מנתח ומשפר קונפיגורציית harness מקומית',
   'java-build-resolver':  'פותר שגיאות Java/Maven/Gradle',
   'java-reviewer':        'מבקר Java/Spring Boot — ארכיטקטורה, JPA, אבטחה',
   'kotlin-build-resolver':'פותר שגיאות Kotlin/Gradle',
-  'kotlin-reviewer':      'מבקר Kotlin/Android — Coroutines, Compose',
-  'loop-operator':        'מפעיל לולאות סוכנים — מעקב התקדמות והתערבות',
-  'planner':              'מתכנן פיצ׳רים ורפקטורינג — תוכנית יישום מפורטת',
+  'kotlin-reviewer':      'מבקר Kotlin/Android — Coroutines, Compose, KMP',
+  'loop-operator':        'מפעיל לולאות סוכנים ומתערב כשנתקעות',
+  'notice-manager':       'ניהול הודעות חשובות ב-Chadshani עם תאריכי פג תוקף',
   'plan':                 'ארכיטקט תוכנה — תכנון אסטרטגיית יישום',
+  'planner':              'מתכנן פיצ׳רים ורפקטורינג — תוכנית יישום מפורטת',
+  'project-status':       'דיווח סטטוס פרויקטים — סריקת git, בדיקת התקדמות',
   'python-reviewer':      'מבקר Python — PEP 8, type hints, אבטחה, ביצועים',
   'pytorch-build-resolver':'פותר שגיאות PyTorch, CUDA ואימון מודלים',
   'refactor-cleaner':     'מנקה קוד מת וכפילויות — knip, depcheck, ts-prune',
   'rust-build-resolver':  'פותר שגיאות Rust ו-Cargo',
-  'rust-reviewer':        'מבקר Rust — ownership, lifetimes, unsafe',
-  'security-reviewer':    'מזהה פגיעויות אבטחה — OWASP, הזרקה, XSS',
-  'tdd-guide':            'מנחה TDD — כתיבת טסטים קודם, כיסוי 80%+',
+  'rust-reviewer':        'מבקר Rust — ownership, lifetimes, unsafe code',
+  'security-reviewer':    'מזהה פגיעויות — OWASP, הזרקה, XSS, סודות חשופים',
+  'tdd-guide':            'מנחה TDD — טסטים קודם לקוד, כיסוי 80%+',
   'typescript-reviewer':  'מבקר TypeScript/JS — type safety, async, אבטחה',
-  'claude-code-guide':    'מומחה Claude Code — CLI, hooks, MCP, settings',
-  'chief-of-staff':       'ראש מטה — ניהול תקשורת רב-ערוצית',
-  'notice-manager':       'ניהול הודעות חשובות ב-Chadshani עם תאריכי פג',
-  'project-status':       'דיווח סטטוס פרויקטים — סריקת git, בדיקת התקדמות',
+  'claude-code-guide':    'מומחה Claude Code — CLI, hooks, slash commands, MCP',
+  'statusline-setup':     'מגדיר שורת סטטוס ב-Claude Code',
+  'Explore':              'חוקר קודבייס לעומק — חיפוש קבצים, קוד ותשובות',
+  'e2e-runner':           'מריץ בדיקות End-to-End עם Playwright',
 };
-
-// Extended details per agent — shown on expand
 const HE_AGENTS_DETAIL = {
-  'architect':            'מתכנן את המבנה הכולל של הקוד — מגדיר שכבות, תלויות ומבנה נתונים לפני כתיבת שורת קוד אחת. חיוני לפרויקטים גדולים שמצריכים חשיבה מקדמית.',
-  'build-error-resolver': 'מתמקד אך ורק בתיקון שגיאות בנייה בזמן קצר ובמינימום שינויים — חוסך זמן עצום כשה-CI/CD נשבר.',
-  'code-reviewer':        'בודק כל קוד שנכתב לפני commit — מונע באגים, בעיות אבטחה וקוד בלתי ניתן לתחזוקה לפני שמגיעים ל-production.',
-  'security-reviewer':    'סורק קוד לפגיעויות OWASP, הזרקת SQL, XSS וסודות חשופים — שכבת הגנה אחרונה לפני כל commit.',
-  'tdd-guide':            'מוודא שנכתבים טסטים קודם לקוד — מדיניות TDD שמבטיחה כיסוי מינימלי של 80% ומורידה דרמטית את שיעור הבאגים.',
-  'planner':              'מפרק כל בקשת פיצ׳ר לתוכנית עבודה מפורטת עם שלבים, סיכונים ותלויות — מונע עבודה כפולה ושינויי כיוון באמצע.',
-  'general-purpose':      'הסוכן הרב-תכליתי שמבצע חיפושים, מחקר ומשימות מורכבות כשאין סוכן ספציפי מתאים — הסוכן הכי גמיש במערכת.',
-  'python-reviewer':      'מסדר קוד Python לתקן PEP 8, מוסיף type hints ומגלה בעיות ביצועים — שומר על קוד Python נקי ומקצועי.',
-  'typescript-reviewer':  'בודק type safety, async correctness ודפוסים לא בטוחים בקוד TypeScript/JS — מניח בסיס יציב לפרויקטי Frontend.',
-  'chief-of-staff':       'מנהל את כל ערוצי התקשורת — מיון מיילים, Slack, LINE — ומגדיר עדיפויות כדי שאף הודעה חשובה לא תאבד.',
-  'doc-updater':          'מעדכן תיעוד אוטומטית אחרי כל שינוי קוד — מוודא שה-CLAUDE.md, READMEs ומפות הקוד תמיד מסונכרנים עם המציאות.',
-  'e2e-runner':           'מריץ בדיקות end-to-end מקצה לקצה על זרימות משתמש קריטיות — מאחר שה-unit tests לא תמיד מגלים בעיות אינטגרציה.',
-  'refactor-cleaner':     'מזהה ומסיר קוד מת, כפילויות ויבואות לא בשימוש — מנקה את הקוד בלי לשבור פונקציונליות.',
-  'database-reviewer':    'מייעל שאילתות SQL, מגלה missing indexes ובודק אבטחת RLS — שמירה על ביצועי מסד נתונים בסביבת production.',
+  'architect':            'משמש לפני כתיבת קוד — מונע ארכיטקטורה שבורה מאוחר יותר. מתאים להחלטות על מבנה שכבות, בסיס נתונים, microservices ו-APIs.',
+  'code-reviewer':        'רץ אוטומטית אחרי כל שינוי קוד. עוצר קוד גרוע לפני ש-commit — חוסך שעות debug.',
+  'security-reviewer':    'שכבת ההגנה האחרונה. מגלה סודות שנשכחו ב-code, הזרקות SQL ופגיעויות OWASP לפני שהם מגיעים לפרודקשן.',
+  'tdd-guide':            'מוודא שהתוצאה הסופית מכוסה ב-80%+ בדיקות. מפחית באגים בפרודקשן ב-60-80% לפי מחקרים.',
+  'planner':              'חוסך זמן עצום — מפרק בקשות עמומות לשלבים ברורים. עדיף שלוחצים על "שמור" לפני כתיבת קוד.',
+  'database-reviewer':    'מגלה missing indexes, שאילתות איטיות ובעיות RLS לפני שנגיעים לפרודקשן.',
 };
-
-// One-sentence Hebrew descriptions for skills
 const HE_SKILLS = {
   'ai-regression-testing':   'בדיקות רגרסיה לפיתוח מבוסס AI',
   'configure-ecc':            'מתקין אינטראקטיבי לסקילים וכללים',
@@ -83,9 +73,10 @@ const HE_SKILLS = {
   'update-docs':              'עדכון תיעוד ו-CLAUDE.md',
   'vcs-github':               'ניהול גרסאות ב-GitHub',
   'worktree':                 'ניהול git worktrees מבודדים',
-  'commit':                   'יצירת commit עם הודעה מסוגננת',
+  'commit':                   'יצירת commit מסוגנן',
 };
 
+// ── Init & Data ────────────────────────────────────────────────────────────
 async function init() {
   showLoading(true);
   await loadData();
@@ -141,292 +132,279 @@ function setView(view) {
   const titleEl = document.getElementById('viewTitle');
   if (view === 'global') {
     if (titleEl) titleEl.textContent = 'מפת המערכת הגלובלית';
-    renderGlobalView();
+    renderGlobalTree();
   } else if (view.startsWith('project_')) {
     const id = parseInt(view.replace('project_', ''));
     const proj = snapshotData?.projects?.find(p => p.id === id);
     if (titleEl && proj) titleEl.textContent = proj.name;
-    renderProjectView(id);
+    renderProjectTree(id);
   }
 }
 
-// ── Global View ────────────────────────────────────────────────────────────
+// ── Global Tree ────────────────────────────────────────────────────────────
 
-function renderGlobalView() {
+function renderGlobalTree() {
   if (!snapshotData) return;
   const g = snapshotData.claude_global;
   const area = document.getElementById('contentArea');
-  area.innerHTML =
-    buildSystemMap(g, snapshotData.projects) +
-    buildSection('agents',      'סוכנים',    g.agents,      renderAgentCard) +
-    buildSection('skills',      'סקילים',    g.skills,      renderSkillCard) +
-    buildSection('mcp_servers', 'MCP שרתים', g.mcp_servers, renderMcpCard) +
-    buildSection('modes',       'מצבים',     g.modes,       renderModeCard) +
-    buildSection('hooks',       'Hooks',     g.hooks,       renderHookCard) +
-    buildSection('memory',      'זיכרון',    g.memory,      renderMemoryCard) +
-    buildRulesSection(g.rules) +
-    buildCommandsSection(g.commands) +
-    buildProjectsSection(snapshotData.projects);
+
+  const total = [g.agents, g.skills, g.mcp_servers, g.hooks, g.modes, g.memory, g.commands]
+    .reduce((s, a) => s + (a || []).length, 0) + (snapshotData.projects || []).length;
+
+  const root = makeNode({
+    id: 'root', icon: '🧠', label: 'מערכת Claude Code',
+    count: total, color: '#4F6EF7', expanded: true,
+    children: [
+      makeCategoryNode('agents',     'סוכנים',    g.agents,
+        a => makeItemNode(a.name, HE_AGENTS[a.name] || a.purpose, HE_AGENTS_DETAIL[a.name] || a.purpose)),
+      makeCategoryNode('skills',     'סקילים',    g.skills,
+        s => makeItemNode(s.name, HE_SKILLS[s.name] || s.purpose, s.purpose, s.status && s.status !== 'active' ? s.status : null)),
+      makeCategoryNode('mcp_servers','MCP שרתים', g.mcp_servers,
+        m => makeItemNode(m.name, m.purpose, null, m.tier || null)),
+      makeCategoryNode('modes',      'מצבים',     g.modes,
+        m => makeItemNode(m.name.replace('_mode',''), m.trigger, null, m.version ? `v${m.version}` : null)),
+      makeCategoryNode('hooks',      'Hooks',     g.hooks,
+        (h,i) => makeItemNode(h.type || `Hook ${i+1}`, h.trigger, null, h.script ? h.script.split('/').pop() : null)),
+      makeCategoryNode('rules',      'כללים',     buildRulesItems(g.rules),
+        r => makeItemNode(r.name, r.he, null, r.tag)),
+      makeCategoryNode('memory',     'זיכרון',    g.memory,
+        m => makeItemNode(m.file, m.name !== m.file ? m.name : null, null, m.type)),
+      makeCategoryNode('commands',   'פקודות',    g.commands,
+        c => makeItemNode(`/${c.name}`, null, null, c.category !== 'general' ? c.category : null)),
+      {
+        icon: '📁', label: 'פרויקטים', count: (snapshotData.projects||[]).length,
+        color: COLORS.getCategory('projects').border, expanded: false,
+        children: (snapshotData.projects || []).map(p => makeProjectSubtree(p))
+      }
+    ]
+  });
+
+  area.innerHTML = '';
+  area.appendChild(buildTreeDOM(root, 0));
 }
 
-// ── System Map (Visual Tree) ───────────────────────────────────────────────
-
-function buildSystemMap(g, projects) {
-  const categories = [
-    { id: 'agents',      he: 'סוכנים',    count: (g.agents || []).length,      icon: '🤖' },
-    { id: 'skills',      he: 'סקילים',    count: (g.skills || []).length,      icon: '✨' },
-    { id: 'mcp_servers', he: 'MCP',        count: (g.mcp_servers || []).length, icon: '🔌' },
-    { id: 'modes',       he: 'מצבים',     count: (g.modes || []).length,       icon: '🎭' },
-    { id: 'hooks',       he: 'Hooks',     count: (g.hooks || []).length,       icon: '🪝' },
-    { id: 'rules',       he: 'כללים',     count: (g.rules?.total || 0),        icon: '📋' },
-    { id: 'memory',      he: 'זיכרון',    count: (g.memory || []).length,      icon: '💾' },
-    { id: 'commands',    he: 'פקודות',    count: (g.commands || []).length,    icon: '⚡' },
-    { id: 'projects',    he: 'פרויקטים',  count: (projects || []).length,      icon: '📁' },
-  ];
-
-  const total = categories.reduce((s, c) => s + c.count, 0);
-
-  const nodes = categories.map(c => {
-    const col = COLORS.getCategory(c.id);
-    return `
-    <div class="map-branch">
-      <div class="map-connector-top"></div>
-      <div class="map-node" style="border-color:${col.border};background:${col.border}15"
-           onclick="document.querySelector('.section-block[data-cat=\\'${c.id}\\']')?.scrollIntoView({behavior:'smooth',block:'start'})">
-        <div class="map-node-icon">${c.icon}</div>
-        <div class="map-node-name" style="color:${col.border}">${c.he}</div>
-        <div class="map-node-count" style="background:${col.border};color:#fff">${c.count}</div>
-      </div>
-    </div>`;
-  }).join('');
-
-  return `
-  <div class="system-map">
-    <div class="map-root-node">
-      <div class="map-root-icon">🧠</div>
-      <div class="map-root-label">מערכת Claude Code</div>
-      <div class="map-root-total">${total} רכיבים</div>
-    </div>
-    <div class="map-connector-bar"></div>
-    <div class="map-branches-row">
-      ${nodes}
-    </div>
-  </div>`;
+function buildRulesItems(rules) {
+  if (!rules) return [];
+  const items = [{ name: 'Common', he: `${rules.common_count || 0} כללים משותפים`, tag: '' }];
+  (rules.languages || []).forEach(l => items.push({ name: l, he: `כללים ל-${l}`, tag: '' }));
+  return items;
 }
 
-// ── Section Builder ────────────────────────────────────────────────────────
-
-function buildSection(cat, title, items, cardFn) {
-  if (!items || items.length === 0) return '';
+function makeCategoryNode(cat, label, items, childMapper) {
   const c = COLORS.getCategory(cat);
-  const icon = CAT_ICONS[cat] || '•';
-  return `
-  <div class="section-block" data-cat="${cat}">
-    <div class="section-header">
-      <span class="section-icon" style="background:${c.border}18;color:${c.border}">${icon}</span>
-      <span class="section-title">${title}</span>
-      <span class="section-badge" style="background:${c.border};color:#fff">${items.length}</span>
-    </div>
-    <div class="cards-grid">
-      ${items.map((item, i) => cardFn(item, i, c)).join('')}
-    </div>
-  </div>`;
+  const icon = CAT_ICONS[cat];
+  return {
+    icon, label, count: (items || []).length,
+    color: c.border, expanded: false,
+    children: (items || []).map((item, i) => childMapper(item, i))
+  };
 }
 
-// ── Card Renderers ─────────────────────────────────────────────────────────
-
-// Toggle card expand/collapse
-function toggleCard(el) {
-  el.classList.toggle('card-expanded');
+function makeItemNode(name, he, detail, tag) {
+  return { name, he, detail, tag, leaf: true };
 }
 
-function renderAgentCard(a) {
-  const he = HE_AGENTS[a.name] || a.purpose?.substring(0, 70) || '';
-  const detail = HE_AGENTS_DETAIL[a.name] || a.purpose || '';
-  const hasDetail = !!detail && detail !== he;
-  return `<div class="node-card cat-agents expandable" onclick="toggleCard(this)">
-    <div class="card-name-en" dir="ltr">${esc(a.name)}</div>
-    ${he ? `<div class="card-he">${esc(he)}</div>` : ''}
-    ${hasDetail ? `<div class="card-expand-content"><div class="card-expand-label">תרומה למערכת:</div><div class="card-expand-text">${esc(detail)}</div></div>` : ''}
-    ${hasDetail ? '<div class="card-expand-hint">לחץ להרחבה ↓</div>' : ''}
-  </div>`;
+function makeProjectSubtree(p) {
+  const color = COLORS.projectColors[p.id % COLORS.projectColors.length];
+  const updated = p.last_modified
+    ? new Date(p.last_modified).toLocaleDateString('he-IL') : '—';
+  const children = [];
+  if (p.description) children.push({ name: 'תיאור', he: p.description, leaf: true });
+  if (p.tech_stack && p.tech_stack.length) {
+    children.push({
+      icon: '⚙️', label: 'Tech Stack', count: p.tech_stack.length, color: '#6B7280',
+      expanded: false,
+      children: p.tech_stack.map(t => ({ name: t, he: null, leaf: true }))
+    });
+  }
+  children.push({ name: 'סטטוס', he: p.status || 'active', leaf: true });
+  children.push({ name: 'קבצים', he: `${p.files_count || 0} קבצים | עודכן: ${updated}`, leaf: true });
+  return {
+    icon: '📁', label: p.name, id_label: p.id, color,
+    expanded: false, clickProject: p.id,
+    children
+  };
 }
 
-function renderSkillCard(s) {
-  const he = HE_SKILLS[s.name] || s.purpose?.substring(0, 70) || '';
-  const detail = s.purpose || '';
-  const status = s.status && s.status !== 'active' ? s.status : '';
-  const hasDetail = !!detail && detail.length > 60;
-  return `<div class="node-card cat-skills expandable" onclick="toggleCard(this)">
-    <div class="card-name-en" dir="ltr">${esc(s.name)}</div>
-    ${he ? `<div class="card-he">${esc(he)}</div>` : ''}
-    ${status ? `<span class="card-tag">${esc(status)}</span>` : ''}
-    ${hasDetail ? `<div class="card-expand-content"><div class="card-expand-label">תפקיד:</div><div class="card-expand-text" dir="ltr">${esc(detail)}</div></div>` : ''}
-    ${hasDetail ? '<div class="card-expand-hint">לחץ להרחבה ↓</div>' : ''}
-  </div>`;
-}
+// ── Project Tree ───────────────────────────────────────────────────────────
 
-function renderMcpCard(m) {
-  const tier = m.tier ? m.tier.replace('TIER ', '') : '';
-  const hasDetail = !!m.purpose && m.purpose.length > 40;
-  return `<div class="node-card cat-mcp_servers${hasDetail ? ' expandable' : ''}"${hasDetail ? ' onclick="toggleCard(this)"' : ''}>
-    <div class="card-name-en" dir="ltr">${esc(m.name)}</div>
-    ${m.purpose ? `<div class="card-he">${esc(m.purpose.substring(0, 70))}</div>` : ''}
-    ${tier ? `<span class="card-tag">Tier ${esc(tier)}</span>` : ''}
-    ${hasDetail ? `<div class="card-expand-content"><div class="card-expand-label">פרטים:</div><div class="card-expand-text" dir="ltr">${esc(m.purpose)}</div></div>` : ''}
-    ${hasDetail ? '<div class="card-expand-hint">לחץ להרחבה ↓</div>' : ''}
-  </div>`;
-}
-
-function renderModeCard(m) {
-  const rawName = (m.name || '').replace('_mode', '');
-  return `<div class="node-card cat-modes">
-    <div class="card-name-en" dir="ltr">${esc(rawName)}</div>
-    ${m.trigger ? `<div class="card-he">${esc(m.trigger.substring(0, 80))}</div>` : ''}
-    ${m.version ? `<span class="card-tag">v${esc(m.version)}</span>` : ''}
-  </div>`;
-}
-
-function renderHookCard(h) {
-  return `<div class="node-card cat-hooks">
-    <div class="card-name-en" dir="ltr">${esc(h.type || 'Hook')}</div>
-    ${h.trigger ? `<div class="card-he">${esc(h.trigger.substring(0, 80))}</div>` : ''}
-    ${h.script ? `<span class="card-tag" dir="ltr">${esc(h.script.split('/').pop())}</span>` : ''}
-  </div>`;
-}
-
-function renderMemoryCard(m) {
-  return `<div class="node-card cat-memory">
-    <div class="card-name-en" dir="ltr">${esc(m.file || m.name)}</div>
-    ${m.name && m.name !== m.file ? `<div class="card-he">${esc(m.name)}</div>` : ''}
-    ${m.type ? `<span class="card-tag">${esc(m.type)}</span>` : ''}
-  </div>`;
-}
-
-function buildRulesSection(rules) {
-  if (!rules) return '';
-  const c = COLORS.getCategory('rules');
-  const langs = rules.languages || [];
-  const items = [
-    `<div class="node-card cat-rules">
-      <div class="card-name">Common</div>
-      <div class="card-he">${rules.common_count || 0} קבצי כללים משותפים לכל שפה</div>
-    </div>`,
-    ...langs.map(l => `<div class="node-card cat-rules">
-      <div class="card-name">${esc(l)}</div>
-      <div class="card-he">כללים ספציפיים לשפת ${esc(l)}</div>
-    </div>`)
-  ];
-  return `
-  <div class="section-block" data-cat="rules">
-    <div class="section-header">
-      <span class="section-icon" style="background:${c.border}18;color:${c.border}">${CAT_ICONS['rules']}</span>
-      <span class="section-title">כללים</span>
-      <span class="section-badge" style="background:${c.border};color:#fff">${rules.total || items.length}</span>
-    </div>
-    <div class="cards-grid">${items.join('')}</div>
-  </div>`;
-}
-
-function buildCommandsSection(commands) {
-  if (!commands || commands.length === 0) return '';
-  const c = COLORS.getCategory('commands');
-  const preview = commands.slice(0, 30);
-  const more = commands.length - preview.length;
-  return `
-  <div class="section-block" data-cat="commands">
-    <div class="section-header">
-      <span class="section-icon" style="background:${c.border}18;color:${c.border}">${CAT_ICONS['commands']}</span>
-      <span class="section-title">פקודות</span>
-      <span class="section-badge" style="background:${c.border};color:#fff">${commands.length}</span>
-    </div>
-    <div class="cards-grid">
-      ${preview.map(cmd => `<div class="node-card cat-commands card-compact">
-        <div class="card-name">/${esc(cmd.name)}</div>
-        ${cmd.category && cmd.category !== 'general' ? `<span class="card-tag">${esc(cmd.category)}</span>` : ''}
-      </div>`).join('')}
-      ${more > 0 ? `<div class="node-card cat-commands card-compact card-more">+${more} פקודות נוספות</div>` : ''}
-    </div>
-  </div>`;
-}
-
-function buildProjectsSection(projects) {
-  if (!projects || projects.length === 0) return '';
-  const c = COLORS.getCategory('projects');
-  return `
-  <div class="section-block" data-cat="projects">
-    <div class="section-header">
-      <span class="section-icon" style="background:${c.border}18;color:${c.border}">${CAT_ICONS['projects']}</span>
-      <span class="section-title">פרויקטים</span>
-      <span class="section-badge" style="background:${c.border};color:#fff">${projects.length}</span>
-    </div>
-    <div class="cards-grid">
-      ${projects.map(p => {
-        const color = COLORS.projectColors[p.id % COLORS.projectColors.length];
-        const updated = p.last_modified
-          ? new Date(p.last_modified).toLocaleDateString('he-IL')
-          : '';
-        return `<div class="node-card project-clickable" style="border-top:4px solid ${color}" onclick="setView('project_${p.id}')">
-          <div class="card-proj-header">
-            <span class="card-proj-num" style="color:${color}">${p.id}</span>
-            <span class="card-name" style="flex:1">${esc(p.name)}</span>
-          </div>
-          ${p.description ? `<div class="card-he">${esc(p.description)}</div>` : ''}
-          <div class="card-footer">
-            ${p.tech_stack && p.tech_stack.length ? p.tech_stack.map(t => `<span class="card-tag">${esc(t)}</span>`).join('') : ''}
-            ${p.status ? `<span class="card-tag" style="background:${color}22;color:${color}">${esc(p.status)}</span>` : ''}
-            ${updated ? `<span class="card-tag">${updated}</span>` : ''}
-          </div>
-        </div>`;
-      }).join('')}
-    </div>
-  </div>`;
-}
-
-// ── Project Detail View ────────────────────────────────────────────────────
-
-function renderProjectView(projId) {
+function renderProjectTree(projId) {
   if (!snapshotData) return;
   const proj = snapshotData.projects.find(p => p.id === projId);
   if (!proj) return;
-  const color = COLORS.projectColors[proj.id % COLORS.projectColors.length];
   const area = document.getElementById('contentArea');
+  area.innerHTML = '';
+
+  const color = COLORS.projectColors[proj.id % COLORS.projectColors.length];
   const updated = proj.last_modified
-    ? new Date(proj.last_modified).toLocaleDateString('he-IL', {day:'2-digit',month:'2-digit',year:'numeric'})
-    : '—';
+    ? new Date(proj.last_modified).toLocaleDateString('he-IL') : '—';
 
-  const techCards = (proj.tech_stack || []).map(t =>
-    `<div class="node-card cat-projects card-compact">
-      <div class="card-name">${esc(t)}</div>
-    </div>`).join('');
+  const children = [];
+  if (proj.description) children.push({ name: 'תיאור', he: proj.description, leaf: true });
+  if (proj.tech_stack && proj.tech_stack.length) {
+    children.push({
+      icon: '⚙️', label: 'Tech Stack', count: proj.tech_stack.length, color: '#6B7280',
+      expanded: true,
+      children: proj.tech_stack.map(t => ({ name: t, leaf: true }))
+    });
+  }
+  children.push({ name: 'סטטוס', he: proj.status || 'active', leaf: true });
+  children.push({ name: 'ספרייה', he: proj.folder, leaf: true, isEn: true });
+  children.push({ name: 'קבצים', he: `${proj.files_count || 0} קבצים`, leaf: true });
+  children.push({ name: 'עדכון אחרון', he: updated, leaf: true });
 
-  area.innerHTML = `
-    <div class="project-hero" style="border-right:6px solid ${color}">
-      <div class="project-hero-id" style="color:${color}">${proj.id}</div>
-      <div class="project-hero-name">${esc(proj.name)}</div>
-      <div class="project-hero-folder" dir="ltr">${esc(proj.folder || '')}</div>
-      ${proj.description ? `<div class="project-hero-desc">${esc(proj.description)}</div>` : ''}
-      <div class="project-hero-meta">
-        ${proj.status ? `<span class="card-tag" style="background:${color}22;color:${color};font-weight:700">${esc(proj.status)}</span>` : ''}
-        ${proj.files_count ? `<span class="card-tag">${proj.files_count} קבצים</span>` : ''}
-        <span class="card-tag">עודכן: ${updated}</span>
-      </div>
-    </div>
+  const root = makeNode({
+    icon: '📁', label: proj.name, id_label: proj.id,
+    color, expanded: true, children
+  });
 
-    ${proj.tech_stack && proj.tech_stack.length > 0 ? `
-    <div class="section-block">
-      <div class="section-header">
-        <span class="section-icon" style="background:#4F6EF718;color:#4F6EF7">⚙️</span>
-        <span class="section-title">Tech Stack</span>
-        <span class="section-badge" style="background:#4F6EF7;color:#fff">${proj.tech_stack.length}</span>
-      </div>
-      <div class="cards-grid">${techCards}</div>
-    </div>` : ''}
+  const backRow = document.createElement('div');
+  backRow.className = 'back-row';
+  backRow.innerHTML = `<button class="btn-back" onclick="setView('global')">← מפה גלובלית</button>`;
+  area.appendChild(backRow);
+  area.appendChild(buildTreeDOM(root, 0));
+}
 
-    <div class="section-block">
-      <button class="btn-back" onclick="setView('global')">← חזרה למפה הגלובלית</button>
-    </div>
-  `;
+// ── Tree DOM Builder ───────────────────────────────────────────────────────
+
+function makeNode(props) { return props; }
+
+function buildTreeDOM(node, depth) {
+  const wrap = document.createElement('div');
+  wrap.className = 'tree-node' + (node.leaf ? ' tree-leaf' : '');
+  if (node.expanded) wrap.classList.add('tree-expanded');
+
+  // Row
+  const row = document.createElement('div');
+  row.className = 'tree-row';
+  if (depth > 0) row.style.paddingRight = `${depth * 22 + 16}px`;
+
+  if (!node.leaf) {
+    // Toggle arrow
+    const arrow = document.createElement('span');
+    arrow.className = 'tree-arrow';
+    arrow.textContent = node.expanded ? '▼' : '▶';
+    row.appendChild(arrow);
+
+    // Icon
+    if (node.icon) {
+      const ic = document.createElement('span');
+      ic.className = 'tree-row-icon';
+      ic.textContent = node.icon;
+      row.appendChild(ic);
+    }
+
+    // Label (Hebrew) + count
+    const lbl = document.createElement('span');
+    lbl.className = 'tree-row-label';
+    if (node.id_label !== undefined) {
+      const numSpan = document.createElement('span');
+      numSpan.className = 'tree-proj-num';
+      numSpan.style.color = node.color || '#4F6EF7';
+      numSpan.textContent = node.id_label;
+      lbl.appendChild(numSpan);
+    }
+    lbl.appendChild(document.createTextNode(node.label || ''));
+    row.appendChild(lbl);
+
+    if (node.count !== undefined) {
+      const cnt = document.createElement('span');
+      cnt.className = 'tree-count';
+      cnt.style.cssText = `background:${node.color || '#4F6EF7'};`;
+      cnt.textContent = node.count;
+      row.appendChild(cnt);
+    }
+
+    // Color bar
+    if (node.color && depth > 0) {
+      row.style.borderRight = `3px solid ${node.color}`;
+    }
+    if (depth === 0) {
+      row.classList.add('tree-row-root');
+      row.style.borderRight = `4px solid ${node.color || '#4F6EF7'}`;
+    }
+
+    // Click: toggle children
+    row.onclick = () => {
+      if (node.clickProject !== undefined) { setView(`project_${node.clickProject}`); return; }
+      const wasExpanded = wrap.classList.contains('tree-expanded');
+      wrap.classList.toggle('tree-expanded', !wasExpanded);
+      arrow.textContent = !wasExpanded ? '▼' : '▶';
+      const childContainer = wrap.querySelector(':scope > .tree-children');
+      if (childContainer) childContainer.style.display = !wasExpanded ? 'block' : 'none';
+    };
+
+    wrap.appendChild(row);
+
+    // Children
+    const childContainer = document.createElement('div');
+    childContainer.className = 'tree-children';
+    childContainer.style.display = node.expanded ? 'block' : 'none';
+    (node.children || []).forEach(child => {
+      childContainer.appendChild(buildTreeDOM(child, depth + 1));
+    });
+    wrap.appendChild(childContainer);
+
+  } else {
+    // Leaf node
+    const dot = document.createElement('span');
+    dot.className = 'tree-leaf-dot';
+    dot.textContent = '○';
+    row.appendChild(dot);
+
+    // Name — English names get LTR
+    const nameEl = document.createElement('span');
+    const isEnName = node.name && /^[a-z0-9\-\/\._]+$/i.test(node.name);
+    if (isEnName || node.isEn) {
+      nameEl.className = 'tree-leaf-name tree-en';
+      nameEl.dir = 'ltr';
+    } else {
+      nameEl.className = 'tree-leaf-name';
+    }
+    nameEl.textContent = node.name || '';
+    row.appendChild(nameEl);
+
+    // Tag badge
+    if (node.tag) {
+      const tag = document.createElement('span');
+      tag.className = 'tree-tag';
+      tag.textContent = node.tag;
+      row.appendChild(tag);
+    }
+
+    // Hebrew description
+    if (node.he) {
+      const he = document.createElement('div');
+      he.className = 'tree-leaf-he';
+      he.textContent = node.he;
+      row.appendChild(he);
+    }
+
+    // Detail expand
+    if (node.detail && node.detail !== node.he) {
+      const detailEl = document.createElement('div');
+      detailEl.className = 'tree-leaf-detail';
+      detailEl.textContent = node.detail;
+      detailEl.style.display = 'none';
+      const hint = document.createElement('span');
+      hint.className = 'tree-detail-hint';
+      hint.textContent = '+ פרטים';
+      row.appendChild(hint);
+      row.appendChild(detailEl);
+      row.onclick = () => {
+        const open = detailEl.style.display !== 'none';
+        detailEl.style.display = open ? 'none' : 'block';
+        hint.textContent = open ? '+ פרטים' : '− סגור';
+        row.classList.toggle('tree-leaf-open', !open);
+      };
+      row.style.cursor = 'pointer';
+    }
+
+    if (depth > 0) row.style.paddingRight = `${depth * 22 + 16}px`;
+    wrap.appendChild(row);
+  }
+
+  return wrap;
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────

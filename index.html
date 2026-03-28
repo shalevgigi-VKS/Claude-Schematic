@@ -6,22 +6,20 @@
   <title>אבולוציה סכמטית — מפת מערכת Claude</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 <div id="app">
 
-  <!-- Header -->
+  <!-- Header: hamburger far-right, refresh far-left (RTL) -->
   <header id="header">
+    <button class="btn-icon btn-hamburger" onclick="toggleSidebar()" title="תפריט">☰</button>
     <span class="logo">🧠</span>
     <span class="header-title">אבולוציה סכמטית</span>
     <span id="viewTitle">מפת המערכת הגלובלית</span>
     <span class="last-updated" id="headerTimestamp"></span>
-    <div class="header-controls">
-      <button class="btn-icon" id="btnRefresh" onclick="refreshData()">↻ עדכן</button>
-      <button class="btn-icon" id="btnHamburger" onclick="toggleSidebar()">☰</button>
-    </div>
+    <button class="btn-icon btn-refresh" id="btnRefresh" onclick="refreshData()" title="עדכן">↻</button>
   </header>
 
   <!-- Main -->
@@ -30,40 +28,29 @@
     <!-- Sidebar — RIGHT side -->
     <aside id="sidebar">
       <div class="sidebar-section-title">תצוגה</div>
-
       <div class="sidebar-item active" id="globalViewItem" data-view="global" onclick="setView('global')">
         <span class="sidebar-badge" style="background:#4F6EF722;color:#4F6EF7;border:1px solid #4F6EF740">🗺</span>
         <span class="sidebar-label">מפת המערכת הגלובלית</span>
       </div>
-
       <div class="sidebar-divider"></div>
       <div class="sidebar-section-title">פרויקטים</div>
       <div id="projectList"></div>
-
       <div class="sidebar-bottom last-updated" id="sidebarTimestamp"></div>
     </aside>
 
-    <!-- Canvas / Content Area -->
+    <!-- Content -->
     <div id="canvas">
-      <!-- Loading -->
       <div id="loadingOverlay">
         <div class="spinner"></div>
         <div class="loading-text">טוען מפת מערכת…</div>
       </div>
-      <!-- Error -->
       <div id="errorMsg"></div>
-      <!-- Dynamic content injected here -->
       <div id="contentArea"></div>
     </div>
 
-  </div><!-- /main -->
+  </div>
+</div>
 
-</div><!-- /app -->
-
-<!-- Tooltip -->
-<div id="tooltip"></div>
-
-<!-- Scripts (no D3 needed) -->
 <script src="js/colors.js"></script>
 <script src="js/app.js"></script>
 </body>
