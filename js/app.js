@@ -423,6 +423,10 @@ function esc(str) {
 async function refreshData() {
   const btn = document.getElementById('btnRefresh');
   if (btn) btn.classList.add('updating');
+  // Full page reload — picks up latest snapshot.json, JS, and CSS
+  window.location.reload(true);
+  return;
+  // (dead code below kept for fallback reference)
   showLoading(true);
   document.getElementById('contentArea').innerHTML = '';
   try {
