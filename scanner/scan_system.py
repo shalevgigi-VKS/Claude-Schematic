@@ -327,6 +327,28 @@ KNOWN_PROJECTS = {
     '7_WhaleWatcher':       {'name': 'WhaleWatcher', 'description': 'מעקב עסקאות לווייתנים בשוק ההון'},
 }
 
+PROJECT_AGENTS = {
+    '0_EvolutionSchematic': ['plan', 'code-reviewer', 'doc-updater'],
+    '1_EmotionWheel':       ['plan', 'code-reviewer'],
+    '2_Chadshani':          ['notice-manager', 'code-reviewer', 'database-reviewer', 'security-reviewer'],
+    '3_Notifications':      ['notice-manager', 'code-reviewer'],
+    '4_RemoteAccess':       ['security-reviewer', 'code-reviewer'],
+    '5_StickerBot':         ['code-reviewer', 'general-purpose'],
+    '6_Gigiz':              ['architect', 'code-reviewer', 'database-reviewer'],
+    '7_WhaleWatcher':       ['architect', 'code-reviewer', 'security-reviewer'],
+}
+
+PROJECT_SKILLS = {
+    '0_EvolutionSchematic': ['frontend-design', 'e2e-testing', 'update-docs'],
+    '1_EmotionWheel':       ['frontend-design', 'e2e-testing'],
+    '2_Chadshani':          ['frontend-design', 'e2e-testing', 'tdd-workflow'],
+    '3_Notifications':      ['update-docs', 'configure-ecc'],
+    '4_RemoteAccess':       ['update-docs'],
+    '5_StickerBot':         ['e2e-testing', 'update-docs'],
+    '6_Gigiz':              ['frontend-design', 'tdd-workflow', 'e2e-testing'],
+    '7_WhaleWatcher':       ['frontend-design', 'tdd-workflow'],
+}
+
 def detect_tech_stack(folder):
     stack = set()
     if (folder / 'package.json').exists():
@@ -419,8 +441,9 @@ def scan_projects():
             'description': description,
             'tech_stack': tech_stack,
             'status': status,
-            'files_count': files_count,
             'last_modified': last_modified,
+            'project_agents': PROJECT_AGENTS.get(folder.name, []),
+            'project_skills': PROJECT_SKILLS.get(folder.name, []),
         })
     result.sort(key=lambda p: p['id'])
     print(f'[PROJECTS] Found {len(result)}')

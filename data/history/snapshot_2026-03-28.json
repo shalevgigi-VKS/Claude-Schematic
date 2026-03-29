@@ -1,11 +1,19 @@
 {
-  "generated_at": "2026-03-28T15:08:05.051153+00:00",
+  "generated_at": "2026-03-28T15:59:47.354547+00:00",
   "version": "1.1",
   "claude_global": {
     "agents": [
       {
         "name": "architect",
         "purpose": "Software architecture specialist for system design, scalability, and technical decision-making. Use PROACTIVELY when pla"
+      },
+      {
+        "name": "backup-agent",
+        "purpose": "Monthly full system backup agent. Creates dated snapshots of the Claude system and all projects at E:\\backup\\. Runs on t"
+      },
+      {
+        "name": "bug-learner",
+        "purpose": "Bug learning and prevention agent. Queries past failures from failures.jsonl, saves solutions to solutions.jsonl, and pr"
       },
       {
         "name": "build-error-resolver",
@@ -229,6 +237,12 @@
         "trigger": "Bash",
         "description": "",
         "script": "bash \"C:/Users/Shalev/.claude/hooks/pre-tool/security-check.sh\" \"$CLAUDE_TOOL_IN"
+      },
+      {
+        "type": "PostToolUse",
+        "trigger": "Bash",
+        "description": "",
+        "script": "bash \"C:/Users/Shalev/.claude/hooks/post-tool/bash-failure-capture.sh\""
       },
       {
         "type": "PostToolUse",
@@ -802,7 +816,7 @@
       ],
       "status": "active",
       "files_count": 11,
-      "last_modified": "2026-03-28T15:06:21.930075+00:00"
+      "last_modified": "2026-03-28T15:59:24.884096+00:00"
     },
     {
       "id": 1,
