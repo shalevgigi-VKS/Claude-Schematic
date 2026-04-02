@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-02T09:35:11.067633+00:00",
+  "generated_at": "2026-03-30T11:36:35.216316+00:00",
   "version": "1.1",
   "claude_global": {
     "agents": [
@@ -145,11 +145,6 @@
       }
     ],
     "skills": [
-      {
-        "name": "chadshani_quality_control",
-        "purpose": "Validates Chadshani site data against real-time sources. On mismatch — switches to maintenance mode, re-runs full update",
-        "status": "active"
-      },
       {
         "name": "ai-regression-testing",
         "purpose": "Regression testing strategies for AI-assisted development. Sandbox-mode API testing without database dependencies, autom",
@@ -819,7 +814,7 @@
         "HTML/JS"
       ],
       "status": "complete",
-      "last_modified": "2026-04-02T04:39:23.403893+00:00",
+      "last_modified": "2026-03-27T08:57:08.846267+00:00",
       "project_agents": [
         "plan",
         "code-reviewer"
@@ -838,7 +833,7 @@
         "Python"
       ],
       "status": "maintenance",
-      "last_modified": "2026-04-02T09:22:11.980429+00:00",
+      "last_modified": "2026-03-30T11:26:22.626507+00:00",
       "project_agents": [
         "notice-manager",
         "code-reviewer",
@@ -858,7 +853,7 @@
       "description": "מערכת התראות iPhone (ntfy.sh)",
       "tech_stack": [],
       "status": "active",
-      "last_modified": "2026-04-02T04:30:03.294246+00:00",
+      "last_modified": "2026-03-27T08:49:29.810604+00:00",
       "project_agents": [
         "notice-manager",
         "code-reviewer"
@@ -894,7 +889,7 @@
         "Python"
       ],
       "status": "active",
-      "last_modified": "2026-04-02T04:30:06.786020+00:00",
+      "last_modified": "2026-03-27T09:48:09.806239+00:00",
       "project_agents": [
         "code-reviewer",
         "general-purpose"
@@ -952,7 +947,7 @@
         "Python"
       ],
       "status": "active",
-      "last_modified": "2026-04-02T09:32:01.506821+00:00",
+      "last_modified": "2026-03-29T12:40:32.250748+00:00",
       "project_agents": [
         "plan",
         "code-reviewer",
