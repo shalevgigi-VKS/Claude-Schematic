@@ -342,12 +342,16 @@ function buildGlobalData() {
       catData('memory',     'זיכרון',    g.memory,     m => ({ name: m.name || m.file, he: HE_MEMORY_TYPE[m.type] || m.description, tag: m.type })),
       catData('commands',   'פקודות',    g.commands,   c => ({ name: `/${c.name}`, he: HE_COMMANDS[c.name] || c.description, tag: c.category !== 'general' ? c.category : null })),
       catData('projects',   'פרויקטים',  snapshotData.projects || [],
-        p => ({
-          name: p.name,
-          he: p.description || '',
-          tag: p.status,
-          isProject: p.id
-        })),
+        p => {
+          const s = COLORS.status[p.status] || COLORS.status.active;
+          return {
+            name: `${s.icon} ${p.name}`,
+            he: p.description || '',
+            tag: s.label,
+            isProject: p.id,
+            color: s.color
+          };
+        }),
     ]
   };
 }
@@ -368,7 +372,13 @@ function catData(cat, label, items, mapper) {
   };
 }
 
-// ── D3 Tree Renderer ───────────────────────────────────────────────────────
+// ── D3 Tree Renderer — Top-to-Bottom, Light Theme ─────────────────────────
+
+function _getCat(d) {
+  if (d.depth === 0) return 'root';
+  if (d.depth === 1) return d.data.id || 'root';
+  return d.data.cat || d.data.id || 'root';
+}
 
 function _renderD3(data, title) {
   currentD3Data = data;
@@ -377,7 +387,7 @@ function _renderD3(data, title) {
   const area = document.getElementById('contentArea');
   area.innerHTML = '';
 
-  // Nav bar with back button
+  // Nav bar
   if (navStack.length > 0) {
     const bar = document.createElement('div');
     bar.className = 'nav-bar';
@@ -388,223 +398,196 @@ function _renderD3(data, title) {
 
   const svgWrap = document.createElement('div');
   svgWrap.className = 'svg-wrap';
+  svgWrap.style.cssText = 'animation:fadeIn 0.28s ease;overflow:auto;';
   area.appendChild(svgWrap);
 
-  // Use children accessor that respects collapsed state
-  const isLeafView = data.children && data.children[0]?.leaf;
-  const nodeSpacingV = isLeafView ? 54 : 62;
-  const nodeW = isLeafView ? 270 : 200;
-  const nodeH = 40;
-  const colW  = isLeafView ? 330 : 290;
+  // ── Layout constants ──
+  const NODE_W = 210;  // pill width
+  const NODE_H = 46;   // pill height
+  const GAP_X  = 24;   // horizontal gap between siblings
+  const GAP_Y  = 88;   // vertical gap between depth levels
 
-  const hierarchy = d3.hierarchy(data, d => {
+  // ── D3 hierarchy (vertical: x=spread, y=depth) ──
+  const hier = d3.hierarchy(data, d => {
     if (collapsedNodes.has(d.id)) return null;
     return d.children?.length ? d.children : null;
   });
+  d3.tree().nodeSize([NODE_W + GAP_X, NODE_H + GAP_Y])(hier);
 
-  const treeLayout = d3.tree().nodeSize([nodeSpacingV, colW]);
-  treeLayout(hierarchy);
+  const descs = hier.descendants();
+  const minX  = d3.min(descs, d => d.x) - NODE_W/2 - 30;
+  const maxX  = d3.max(descs, d => d.x) + NODE_W/2 + 30;
+  const maxY  = d3.max(descs, d => d.y) + NODE_H + 60;
+  const svgW  = Math.max(800, maxX - minX);
+  const svgH  = Math.max(500, maxY);
+  const offX  = -minX;
 
-  const descs = hierarchy.descendants();
-  const minX = d3.min(descs, d => d.x);
-  const maxX = d3.max(descs, d => d.x);
-  const maxY = d3.max(descs, d => d.y);
-  const svgW = Math.max(600, maxY + nodeW + 80);
-  const svgH = Math.max(400, maxX - minX + nodeSpacingV * 2 + 40);
-  const offsetY = -minX + nodeSpacingV;
-
+  // ── SVG ──
   const svg = d3.select(svgWrap).append('svg')
-    .attr('width', svgW)
-    .attr('height', svgH)
-    .attr('viewBox', `0 0 ${svgW} ${svgH}`)
+    .attr('width', svgW).attr('height', svgH)
     .style('display', 'block')
-    .style('background', '#0A0F1E');
+    .style('background', '#F8FAFC');
 
-  const zoom = d3.zoom().scaleExtent([0.15, 4]).on('zoom', e => g.attr('transform', e.transform));
-  svg.call(zoom);
-
-  const g = svg.append('g').attr('transform', `translate(30, ${offsetY})`);
-
-  // SVG defs — shadow filter + per-category gradients
   const defs = svg.append('defs');
-  const shadowFilter = defs.append('filter').attr('id', 'd3shadow')
-    .attr('x', '-20%').attr('y', '-30%').attr('width', '150%').attr('height', '180%');
-  shadowFilter.append('feDropShadow')
-    .attr('dx', 0).attr('dy', 4).attr('stdDeviation', 7)
-    .attr('flood-color', '#000').attr('flood-opacity', 0.45);
 
-  // Per-category gradient fills
-  (currentD3Data?.children || []).forEach(cat => {
-    const c = cat.color || '#38BDF8';
-    const gid = `grad-${cat.id || 'x'}`;
-    const grad = defs.append('linearGradient').attr('id', gid)
-      .attr('x1', '0%').attr('y1', '0%').attr('x2', '100%').attr('y2', '100%');
-    grad.append('stop').attr('offset', '0%').attr('stop-color', c).attr('stop-opacity', 0.28);
-    grad.append('stop').attr('offset', '100%').attr('stop-color', c).attr('stop-opacity', 0.08);
+  // Dot grid background
+  defs.append('pattern').attr('id','dg').attr('width',28).attr('height',28)
+    .attr('patternUnits','userSpaceOnUse').append('circle')
+    .attr('cx',1).attr('cy',1).attr('r',0.9).attr('fill','#CBD5E1');
+  svg.append('rect').attr('width','100%').attr('height','100%').attr('fill','url(#dg)').attr('opacity',0.5);
 
-    // Glow filter per category
-    const gf = defs.append('filter').attr('id', `glow-cat-${cat.id}`)
-      .attr('x', '-40%').attr('y', '-40%').attr('width', '180%').attr('height', '180%');
-    gf.append('feGaussianBlur').attr('stdDeviation', '5').attr('in', 'SourceGraphic').attr('result', 'blur');
-    const fm = gf.append('feMerge');
-    fm.append('feMergeNode').attr('in', 'blur');
-    fm.append('feMergeNode').attr('in', 'SourceGraphic');
-  });
+  // Drop shadow filter
+  const sf = defs.append('filter').attr('id','nshadow')
+    .attr('x','-20%').attr('y','-20%').attr('width','140%').attr('height','160%');
+  sf.append('feDropShadow').attr('dx',0).attr('dy',2).attr('stdDeviation',4)
+    .attr('flood-color','#0F172A').attr('flood-opacity',0.07);
 
-  // Links — curved Bezier
-  g.selectAll('.d3lnk')
-    .data(hierarchy.links())
+  // Zoom + pan
+  const zoom = d3.zoom().scaleExtent([0.1,4]).on('zoom', e => g.attr('transform', e.transform));
+  svg.call(zoom);
+  const g = svg.append('g').attr('transform', `translate(${offX},40)`);
+
+  // ── Links — vertical bezier ──
+  g.selectAll('.edge')
+    .data(hier.links())
     .enter().append('path')
-    .attr('class', 'd3lnk')
-    .attr('fill', 'none')
-    .attr('stroke', d => (d.target.data.color || '#38BDF8') + '44')
-    .attr('stroke-width', d => d.target.depth === 1 ? 2.2 : 1.5)
-    .attr('stroke-dasharray', d => d.target.depth > 2 ? '4,3' : 'none')
-    .attr('d', d3.linkHorizontal().x(d => d.y).y(d => d.x));
+    .attr('class','edge')
+    .attr('fill','none')
+    .attr('stroke', d => {
+      const cat = COLORS.getCategory(_getCat(d.target));
+      return cat.border;
+    })
+    .attr('stroke-width', d => d.target.depth === 1 ? 1.5 : 1)
+    .attr('stroke-opacity', d => d.target.depth === 1 ? 0.28 : 0.16)
+    .attr('stroke-linecap','round')
+    .attr('d', d => {
+      const sx = d.source.x, sy = d.source.y + NODE_H/2;
+      const tx = d.target.x, ty = d.target.y - NODE_H/2;
+      const my = (sy + ty) / 2;
+      return `M${sx},${sy} C${sx},${my} ${tx},${my} ${tx},${ty}`;
+    });
 
-  // Nodes
+  // ── Nodes ──
   const node = g.selectAll('.d3nd')
     .data(descs)
     .enter().append('g')
-    .attr('class', d => `d3nd${d.data.leaf ? ' d3lf' : ''}`)
-    .attr('transform', d => `translate(${d.y},${d.x})`)
-    .style('cursor', d => (!d.data.leaf || d.data.isProject !== undefined) ? 'pointer' : 'default');
+    .attr('class','d3nd')
+    .attr('transform', d => `translate(${d.x - NODE_W/2},${d.y - NODE_H/2})`)
+    .style('cursor', d => (!d.data.leaf || d.data.isProject !== undefined) ? 'pointer' : 'default')
+    .attr('opacity', 0);
 
-  // Node rect background
+  // Fade-in animation on enter
+  node.transition().duration(300).delay((d,i) => Math.min(i * 12, 200)).attr('opacity', 1);
+
+  // Pill background
   node.append('rect')
-    .attr('x', -nodeH/2).attr('y', -nodeH/2)
-    .attr('width', d => {
-      if (d.data.leaf) return nodeW;
-      if (d.depth === 0) return 190;
-      return 170;
-    })
-    .attr('height', nodeH)
-    .attr('rx', d => d.depth === 0 ? 14 : 10)
+    .attr('width', NODE_W).attr('height', NODE_H)
+    .attr('rx', NODE_H / 2)
     .attr('fill', d => {
-      if (d.depth === 1 && d.data.id && !d.data.leaf) return `url(#grad-${d.data.id})`;
-      const cat = d.data.cat || (d.depth === 0 ? 'root' : null);
-      const catColor = d.data.color || '#38BDF8';
-      return catColor + (d.depth === 0 ? '20' : '12');
+      const cat = COLORS.getCategory(_getCat(d));
+      return d.depth === 0 ? cat.bg : d.depth === 1 ? cat.bg : '#FFFFFF';
     })
-    .attr('stroke', d => {
-      if (d.data.leaf) {
-        const catColor = d.data.color || '#38BDF8';
-        return catColor + '55';
-      }
-      return d.data.color || '#38BDF8';
-    })
-    .attr('stroke-width', d => d.depth === 0 ? 3 : d.depth === 1 ? 2.5 : 1.5)
-    .attr('filter', d => d.depth <= 1 ? `url(#glow-cat-${d.data.id || 'x'})` : 'url(#d3shadow)');
+    .attr('stroke', d => COLORS.getCategory(_getCat(d)).border)
+    .attr('stroke-width', d => d.depth === 0 ? 2 : d.depth === 1 ? 1.5 : 0.75)
+    .attr('stroke-opacity', d => d.depth === 0 ? 1 : d.depth === 1 ? 0.6 : 0.22)
+    .attr('filter', 'url(#nshadow)');
 
-  // Count badge (category nodes)
-  node.filter(d => d.data.count !== undefined && !d.data.leaf)
-    .each(function(d) {
-      const g2 = d3.select(this);
-      const cx = d.depth === 0 ? 76 : 68;
-      g2.append('circle').attr('cx', cx).attr('cy', 0).attr('r', 15)
-        .attr('fill', d.data.color || '#38BDF8').attr('opacity', 0.90);
-      g2.append('text').attr('x', cx).attr('y', 5)
-        .attr('text-anchor', 'middle').attr('fill', '#0A0F1E')
-        .attr('font-size', 11).attr('font-weight', '800')
-        .attr('font-family', 'Heebo, sans-serif')
-        .text(d.data.count);
-    });
+  // Left dot accent
+  node.append('circle')
+    .attr('cx', NODE_H / 2)
+    .attr('cy', NODE_H / 2)
+    .attr('r', d => d.depth === 0 ? 7 : d.depth === 1 ? 5 : 3)
+    .attr('fill', d => COLORS.getCategory(_getCat(d)).border)
+    .attr('opacity', d => d.depth === 0 ? 0.9 : d.depth === 1 ? 0.7 : 0.4);
 
-  // Expand/Collapse arrow (depth-1 category nodes)
-  node.filter(d => d.depth === 1 && d.data.children?.length > 0)
-    .append('text')
-    .attr('x', -nodeH/2 + 12).attr('y', 6)
-    .attr('font-size', 12)
-    .attr('fill', d => d.data.color || '#38BDF8')
-    .attr('opacity', 0.9)
-    .text(d => collapsedNodes.has(d.data.id) ? '▶' : '▾');
-
-  // Icon (root + category)
-  node.filter(d => d.data.icon && !d.data.leaf)
-    .append('text')
-    .attr('x', -nodeH/2 + (d => d.depth===1 ? 30 : 22))
-    .attr('y', 5)
-    .attr('text-anchor', 'middle')
-    .attr('font-size', d => d.depth === 0 ? 16 : 14)
-    .text(d => d.data.icon || '');
-
-  // Main label — English uppercase, Hebrew as-is
+  // Text — centered in pill
   node.append('text')
-    .attr('x', d => {
-      if (d.data.leaf) return -nodeH/2 + 8;
-      if (d.data.icon && d.depth === 0) return -nodeH/2 + 38;
-      if (d.data.icon && d.depth === 1) return -nodeH/2 + 46;
-      return -nodeH/2 + 10;
-    })
-    .attr('y', d => (d.data.leaf && d.data.he) ? -5 : 5)
-    .attr('font-size', d => d.depth === 0 ? 15 : d.depth === 1 ? 13 : 12)
-    .attr('font-weight', d => d.depth <= 1 ? '700' : '500')
-    .attr('fill', d => {
-      if (d.depth === 0) return '#E0F2FE';
-      if (d.depth === 1) return d.data.color || '#38BDF8';
-      return '#D1D5DB';
-    })
+    .attr('x', NODE_W / 2)
+    .attr('y', NODE_H / 2)
+    .attr('dominant-baseline', 'central')
+    .attr('text-anchor', 'middle')
+    .attr('fill', d => COLORS.getCategory(_getCat(d)).text)
+    .attr('font-size', d => d.depth === 0 ? 14 : d.depth === 1 ? 13 : 11)
+    .attr('font-weight', d => d.depth <= 1 ? 700 : 500)
     .attr('font-family', 'Heebo, sans-serif')
     .text(d => {
       const raw = d.data.label || d.data.name || '';
-      const isEn = /^[/a-z0-9\-\._\s]+$/i.test(raw) && !/[\u0590-\u05FF]/.test(raw);
-      return isEn ? raw.toUpperCase() : raw;
+      const max = d.depth <= 1 ? 24 : 26;
+      return raw.length > max ? raw.substring(0, max - 1) + '…' : raw;
     });
 
-  // Hebrew description for leaf nodes
-  node.filter(d => d.data.leaf && d.data.he)
-    .append('text')
-    .attr('x', -nodeH/2 + 8)
-    .attr('y', 13)
-    .attr('font-size', 10)
-    .attr('fill', '#94A3B8')
-    .attr('font-family', 'Heebo, sans-serif')
-    .text(d => (d.data.he || '').substring(0, 48) + ((d.data.he||'').length > 48 ? '…' : ''));
+  // Count badge on category nodes
+  node.filter(d => !d.data.leaf && d.data.count && d.depth === 1)
+    .each(function(d) {
+      const cat = COLORS.getCategory(_getCat(d));
+      const bw = 26, bx = NODE_W - NODE_H/2 - bw - 4;
+      d3.select(this).append('rect')
+        .attr('x', bx).attr('y', NODE_H/2 - 9).attr('width', bw).attr('height', 17).attr('rx', 8)
+        .attr('fill', cat.border).attr('opacity', 0.15);
+      d3.select(this).append('text')
+        .attr('x', bx + bw/2).attr('y', NODE_H/2)
+        .attr('dominant-baseline','central').attr('text-anchor','middle')
+        .attr('font-size', 9).attr('font-weight', 700).attr('font-family','Heebo, sans-serif')
+        .attr('fill', cat.border).text(d.data.count);
+    });
 
-  // Tag badge
-  node.filter(d => d.data.leaf && d.data.tag)
-    .append('text')
-    .attr('x', nodeW - nodeH/2 - 4)
-    .attr('y', 5)
-    .attr('text-anchor', 'end')
-    .attr('font-size', 9)
-    .attr('fill', d => d.data.color || '#94A3B8')
-    .attr('opacity', 0.75)
-    .attr('font-family', 'Heebo, sans-serif')
-    .text(d => d.data.tag || '');
+  // Expand/collapse toggle circle
+  node.filter(d => !d.data.leaf && d.data.children?.length > 0)
+    .each(function(d) {
+      const cat = COLORS.getCategory(_getCat(d));
+      const cx = NODE_W - NODE_H/2 + 1, cy = NODE_H/2;
+      // Overlap toggle on right edge of pill
+      const tog = d3.select(this).append('g').attr('class','toggle-g');
+      tog.append('circle').attr('cx', cx).attr('cy', cy).attr('r', 9)
+        .attr('fill', '#fff').attr('stroke', cat.border).attr('stroke-width', 1.5).attr('stroke-opacity', 0.5);
+      tog.append('text')
+        .attr('x', cx).attr('y', cy)
+        .attr('dominant-baseline','central').attr('text-anchor','middle')
+        .attr('font-size', 11).attr('font-weight', 700)
+        .attr('font-family', 'Heebo, sans-serif')
+        .attr('fill', cat.border)
+        .text(collapsedNodes.has(d.data.id) ? '+' : '−');
+    });
 
-  // Accent right bar on category nodes
-  node.filter(d => d.depth === 1)
-    .append('rect')
-    .attr('x', 165)
-    .attr('y', -nodeH/2 + 6)
-    .attr('width', 4)
-    .attr('height', nodeH - 12)
-    .attr('rx', 2)
-    .attr('fill', d => d.data.color || '#38BDF8')
-    .attr('opacity', 0.7);
+  // Hover effects
+  node.on('mouseenter', function(event, d) {
+    d3.select(this).select('rect')
+      .transition().duration(120)
+      .attr('stroke-opacity', 1)
+      .attr('stroke-width', d.depth === 0 ? 2.5 : d.depth === 1 ? 2 : 1.2);
+    d3.select(this)
+      .transition().duration(120)
+      .attr('transform', `translate(${d.x - NODE_W/2},${d.y - NODE_H/2}) scale(1.04)`);
+  })
+  .on('mouseleave', function(event, d) {
+    d3.select(this).select('rect')
+      .transition().duration(180)
+      .attr('stroke-opacity', d.depth === 0 ? 1 : d.depth === 1 ? 0.6 : 0.22)
+      .attr('stroke-width', d.depth === 0 ? 2 : d.depth === 1 ? 1.5 : 0.75);
+    d3.select(this)
+      .transition().duration(180)
+      .attr('transform', `translate(${d.x - NODE_W/2},${d.y - NODE_H/2})`);
+  });
 
   // Click handlers
   node.on('click', (event, d) => {
     event.stopPropagation();
-    // Project leaf → navigate into project view
     if (d.data.isProject !== undefined) {
       navStack.push({ data: currentD3Data, title: currentD3Title });
       setViewProject(d.data.isProject);
       return;
     }
-    // Category node (has id + children) → toggle expand/collapse in-place
     if (d.data.id && !d.data.leaf && d.data.children?.length > 0) {
       collapsedNodes.has(d.data.id)
         ? collapsedNodes.delete(d.data.id)
         : collapsedNodes.add(d.data.id);
-      _renderD3(currentD3Data, currentD3Title);
+      // Animate out then re-render
+      d3.select(svgWrap).style('opacity', 1)
+        .transition().duration(150).style('opacity', 0)
+        .on('end', () => _renderD3(currentD3Data, currentD3Title));
       return;
     }
-    // Leaf node → show tooltip detail
-    if (d.data.leaf) {
-      showLeafDetail(event, d.data);
-    }
+    if (d.data.leaf) showLeafDetail(event, d.data);
   });
 
   updateExpandBtn();
@@ -618,9 +601,9 @@ function showLeafDetail(event, data) {
     ? data.name.toUpperCase() : data.name;
   const detail = data.detail || data.he || '';
   tt.innerHTML = `
-    <div style="font-weight:700;margin-bottom:6px;font-size:14px;color:${data.color||'#38BDF8'}">${esc(nameDisplay)}</div>
-    <div style="color:#CBD5E1;font-size:12px;line-height:1.6">${esc(detail)}</div>
-    ${data.tag ? `<div style="margin-top:8px;font-size:10px;color:${data.color||'#94A3B8'};opacity:0.8">${esc(data.tag)}</div>` : ''}
+    <div style="font-weight:700;margin-bottom:6px;font-size:14px;color:${data.color||'#6366F1'}">${esc(nameDisplay)}</div>
+    <div style="color:#475569;font-size:12px;line-height:1.6">${esc(detail)}</div>
+    ${data.tag ? `<div style="margin-top:8px;font-size:10px;color:${data.color||'#64748B'};opacity:0.8">${esc(data.tag)}</div>` : ''}
   `;
   tt.style.display = 'block';
   const tw = 260;
@@ -715,7 +698,13 @@ function setViewProject(projId) {
         id: 'tech', icon: '⚙️', label: 'Tech Stack',
         color: '#6B7280', count: techChildren.length, children: techChildren
       } : null,
-      { leaf: true, name: 'סטטוס', he: proj.status || 'active', color },
+      { 
+        leaf: true, 
+        name: 'סטטוס', 
+        he: (COLORS.status[proj.status] || COLORS.status.active).label, 
+        tag: (COLORS.status[proj.status] || COLORS.status.active).icon,
+        color: (COLORS.status[proj.status] || COLORS.status.active).color 
+      },
       agentItems.length ? {
         id: `proj_agents_${proj.id}`, icon: '🤖', label: 'סוכנים',
         color: COLORS.getCategory('agents').border,

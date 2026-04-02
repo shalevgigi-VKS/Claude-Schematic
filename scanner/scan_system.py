@@ -13,6 +13,7 @@ PROJECTS_DIR = Path("e:\\Claude\\Shalev's_Projects")
 OUT_DIR      = Path(__file__).parent.parent / 'data'
 OUT_FILE     = OUT_DIR / 'snapshot.json'
 HIST_DIR     = OUT_DIR / 'history'
+STATUS_MD    = PROJECTS_DIR.parent / 'PROJECT_STATUS.md'
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
@@ -50,6 +51,46 @@ def first_non_empty_line(text, skip_frontmatter=True):
         if stripped.startswith('#'):
             return stripped.lstrip('#').strip()
     return ''
+
+def parse_project_status_md():
+    """Parse PROJECT_STATUS.md table into a dict: { folder_name: { status, desc } }"""
+    res = {}
+    if not STATUS_MD.exists():
+        return res
+    text = read_text(STATUS_MD)
+    # Look for the table lines
+    lines = text.splitlines()
+    in_table = False
+    for line in lines:
+        if '|' in line and (line.strip().startswith('| 1') or line.strip().startswith('| 2')):
+            in_table = True
+        if not in_table: continue
+        parts = [p.strip() for p in line.split('|')]
+        if len(parts) < 4: continue
+        # Format: | ID | Name | Status | Tech | Desc | ...
+        try:
+            p_id = parts[1]
+            p_name = parts[2].replace('**', '')
+            p_status_raw = parts[3]
+            p_desc = parts[5]
+            # Map emojis/Hebrew to simple status
+            status = 'active'
+            if 'קפוא' in p_status_raw or '❄️' in p_status_raw: status = 'frozen'
+            elif 'תחזוקה' in p_status_raw or '🛠️' in p_status_raw: status = 'maintenance'
+            elif 'מושלם' in p_status_raw or '✅' in p_status_raw: status = 'complete'
+            elif 'בשלד' in p_status_raw or '🏗️' in p_status_raw: status = 'development'
+            
+            # Find folder by iterating PROJECTS_DIR
+            folder_name = None
+            for d in PROJECTS_DIR.iterdir():
+                if d.is_dir() and d.name.startswith(f"{p_id}_"):
+                    folder_name = d.name
+                    break
+            
+            if folder_name:
+                res[folder_name] = {'status': status, 'name': p_name, 'description': p_desc}
+        except: continue
+    return res
 
 
 # ── Agents ──────────────────────────────────────────────────────────────────
@@ -317,7 +358,7 @@ def scan_memory():
 # ── Projects ────────────────────────────────────────────────────────────────
 
 KNOWN_PROJECTS = {
-    '0_EvolutionSchematic': {'name': 'אבולוציה סכמטית', 'description': 'מפת מערכת שבועית — Claude Code ויזואלי'},
+    '8_EvolutionSchematic': {'name': 'אבולוציה סכמטית', 'description': 'מפת מערכת שבועית — Claude Code ויזואלי'},
     '1_EmotionWheel':       {'name': 'גלגל הרגשות', 'description': 'ויזואליזציה אינטראקטיבית של גלגל הרגשות'},
     '2_Chadshani':          {'name': 'חדשני', 'description': 'אתר ניתוח שוק הון ישראלי'},
     '3_Notifications':      {'name': 'התראות', 'description': 'מערכת ניהול התראות ntfy.sh'},
@@ -328,7 +369,7 @@ KNOWN_PROJECTS = {
 }
 
 PROJECT_AGENTS = {
-    '0_EvolutionSchematic': ['plan', 'code-reviewer', 'doc-updater'],
+    '8_EvolutionSchematic': ['plan', 'code-reviewer', 'doc-updater'],
     '1_EmotionWheel':       ['plan', 'code-reviewer'],
     '2_Chadshani':          ['notice-manager', 'code-reviewer', 'database-reviewer', 'security-reviewer'],
     '3_Notifications':      ['notice-manager', 'code-reviewer'],
@@ -339,7 +380,7 @@ PROJECT_AGENTS = {
 }
 
 PROJECT_SKILLS = {
-    '0_EvolutionSchematic': ['frontend-design', 'e2e-testing', 'update-docs'],
+    '8_EvolutionSchematic': ['frontend-design', 'e2e-testing', 'update-docs'],
     '1_EmotionWheel':       ['frontend-design', 'e2e-testing'],
     '2_Chadshani':          ['frontend-design', 'e2e-testing', 'tdd-workflow'],
     '3_Notifications':      ['update-docs', 'configure-ecc'],
@@ -389,11 +430,17 @@ def detect_status(folder):
     return 'active'
 
 def count_files(folder):
+    """Speedy non-recursive count or high-level recursive with strict skips."""
     total = 0
-    skip = {'.git', 'node_modules', '__pycache__', '.next', 'dist', 'build', '.venv', 'venv'}
-    for item in folder.rglob('*'):
-        if item.is_file() and not any(p in item.parts for p in skip):
-            total += 1
+    skip = {'.git', 'node_modules', '__pycache__', '.next', 'dist', 'build', '.venv', 'venv', 'target'}
+    try:
+        # Just count top level + 1 depth for speed, or assume small enough if skip is good
+        for item in folder.rglob('*'):
+            if any(p in item.parts for p in skip): continue
+            if item.is_file():
+                total += 1
+            if total > 5000: break # Safety cap
+    except: pass
     return total
 
 def scan_projects():
@@ -401,6 +448,10 @@ def scan_projects():
     if not PROJECTS_DIR.exists():
         print(f'[PROJECTS] Dir not found: {PROJECTS_DIR}')
         return result
+    
+    # 1. Load ground truth from PROJECT_STATUS.md
+    external_statuses = parse_project_status_md()
+    
     for folder in sorted(PROJECTS_DIR.iterdir()):
         if not folder.is_dir():
             continue
@@ -409,31 +460,39 @@ def scan_projects():
         if not m:
             continue
         proj_id = int(m.group(1))
-        known = KNOWN_PROJECTS.get(folder.name, {})
-        name = known.get('name', folder.name)
-        description = known.get('description', '')
-        # Try CLAUDE.md for description
-        claude_md = folder / 'CLAUDE.md'
-        if claude_md.exists() and not description:
-            text = read_text(claude_md)
-            for line in text.splitlines():
-                line = line.strip()
-                if line and not line.startswith('#') and not line.startswith('---'):
-                    description = line[:100]
-                    break
+        if proj_id == 0:
+            continue  # Project 0 removed — legacy folder, not a real project
+
+        # Use external status if available, fallback to hardcoded/detection
+        ext = external_statuses.get(folder.name, {})
+        name = ext.get('name') or KNOWN_PROJECTS.get(folder.name, {}).get('name') or folder.name
+        description = ext.get('description') or KNOWN_PROJECTS.get(folder.name, {}).get('description') or ''
+        
+        # Try CLAUDE.md for description if still empty
+        if not description:
+            claude_md = folder / 'CLAUDE.md'
+            if claude_md.exists():
+                text = read_text(claude_md)
+                for line in text.splitlines():
+                    line = line.strip()
+                    if line and not line.startswith('#') and not line.startswith('---'):
+                        description = line[:100]
+                        break
+        
         tech_stack = detect_tech_stack(folder)
-        status = detect_status(folder)
+        status = ext.get('status') or detect_status(folder)
         files_count = count_files(folder)
+        
         # Last modified
         try:
-            mtime = max(
-                (p.stat().st_mtime for p in folder.rglob('*') if p.is_file()
-                 and '.git' not in str(p) and 'node_modules' not in str(p)),
-                default=folder.stat().st_mtime
-            )
+            # Check just a few key files for speed
+            mtime = folder.stat().st_mtime
+            for f in folder.glob('*.md'):
+                mtime = max(mtime, f.stat().st_mtime)
             last_modified = datetime.fromtimestamp(mtime, tz=timezone.utc).isoformat()
         except Exception:
             last_modified = None
+
         result.append({
             'id': proj_id,
             'name': name,
@@ -446,7 +505,7 @@ def scan_projects():
             'project_skills': PROJECT_SKILLS.get(folder.name, []),
         })
     result.sort(key=lambda p: p['id'])
-    print(f'[PROJECTS] Found {len(result)}')
+    print(f'[PROJECTS] Found {len(result)} (using PROJECT_STATUS.md: {len(external_statuses)} nodes)')
     return result
 
 
