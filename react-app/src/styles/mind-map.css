@@ -129,15 +129,35 @@ body {
   cursor: not-allowed;
 }
 
-.menu-btn {
+.expand-btn {
   background: linear-gradient(135deg, #6366F1, #8B5CF6);
   color: white;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
 
-.menu-btn:hover {
+.expand-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.collapse-btn {
+  background: linear-gradient(135deg, #EF4444, #F87171);
+  color: white;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.collapse-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.menu-btn {
+  background: #F1F5F9;
+  color: #475569;
+}
+
+.menu-btn:hover {
+  background: #E2E8F0;
 }
 
 /* Projects Menu */
