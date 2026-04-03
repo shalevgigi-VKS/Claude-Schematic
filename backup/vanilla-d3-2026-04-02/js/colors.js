@@ -1,0 +1,30 @@
+const COLORS = {
+  bg: '#F8FAFC', surface: '#FFFFFF', surface2: '#F1F5F9',
+  border: 'rgba(100,116,139,0.16)', text: '#1E293B', textMuted: '#64748B',
+  categories: {
+    root:        { bg:'#EEF2FF', border:'#6366F1', text:'#312E81', icon:'🧠',  label:'Claude Code' },
+    agents:      { bg:'#EFF6FF', border:'#3B82F6', text:'#1E3A8A', icon:'◈',  label:'סוכנים' },
+    skills:      { bg:'#FFF1F2', border:'#F43F5E', text:'#881337', icon:'◆',  label:'סקילים' },
+    mcp_servers: { bg:'#ECFDF5', border:'#10B981', text:'#064E3B', icon:'⬡',  label:'MCP' },
+    hooks:       { bg:'#FFFBEB', border:'#F59E0B', text:'#78350F', icon:'◉',  label:'Hooks' },
+    modes:       { bg:'#FDF4FF', border:'#A855F7', text:'#581C87', icon:'◈',  label:'מצבים' },
+    rules:       { bg:'#FFF7ED', border:'#F97316', text:'#7C2D12', icon:'◇',  label:'כללים' },
+    memory:      { bg:'#ECFDF5', border:'#059669', text:'#064E3B', icon:'◎',  label:'זיכרון' },
+    commands:    { bg:'#FEF3C7', border:'#D97706', text:'#78350F', icon:'▶',  label:'פקודות' },
+    projects:    { bg:'#F0F9FF', border:'#0EA5E9', text:'#0C4A6E', icon:'◱',  label:'פרויקטים' },
+    frontend:    { bg:'#FDF4FF', border:'#C026D3', text:'#4A044E', icon:'◻',  label:'Frontend' },
+    backend:     { bg:'#EFF6FF', border:'#2563EB', text:'#1E3A8A', icon:'◻',  label:'Backend' },
+    automation:  { bg:'#ECFDF5', border:'#16A34A', text:'#14532D', icon:'◻',  label:'Automation' },
+    config:      { bg:'#FAFAF9', border:'#78716C', text:'#292524', icon:'◻',  label:'Config' },
+    database:    { bg:'#F5F3FF', border:'#7C3AED', text:'#2E1065', icon:'◻',  label:'Database' },
+  },
+  status: {
+    active:      { color: '#10B981', icon: '🟢', label: 'פעיל' },
+    maintenance: { color: '#F59E0B', icon: '🛠️', label: 'תחזוקה' },
+    frozen:      { color: '#94A3B8', icon: '❄️', label: 'קפוא' },
+    complete:    { color: '#3B82F6', icon: '✅', label: 'מושלם' },
+    development: { color: '#A855F7', icon: '🏗️', label: 'בשלד' },
+  },
+  projectColors: ['#3B82F6','#F43F5E','#10B981','#F59E0B','#A855F7','#0EA5E9','#F97316','#6366F1'],
+  getCategory(cat) { return this.categories[cat] || this.categories.root; }
+};

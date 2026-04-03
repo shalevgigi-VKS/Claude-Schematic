@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-02T09:35:11.067633+00:00",
+  "generated_at": "2026-04-02T14:25:18.276556+00:00",
   "version": "1.1",
   "claude_global": {
     "agents": [
@@ -387,7 +387,7 @@
       {
         "name": "OrelliusAI / claudeusage-mcp",
         "tier": "",
-        "purpose": "** Real-time Claude Pro/Max usage tracking inside Claude Code. Zero config, reads existing OAuth tok",
+        "purpose": "** Real-time Claude Pro/Max usage tracking — session, weekly, per-model, extra credits — as queryabl",
         "status": "active"
       },
       {
@@ -800,17 +800,6 @@
   },
   "projects": [
     {
-      "id": 0,
-      "name": "0_EvolutionSchematic",
-      "folder": "0_EvolutionSchematic",
-      "description": "",
-      "tech_stack": [],
-      "status": "active",
-      "last_modified": "2026-03-29T12:38:56.255639+00:00",
-      "project_agents": [],
-      "project_skills": []
-    },
-    {
       "id": 1,
       "name": "גלגל הרגשות",
       "folder": "1_EmotionWheel",
@@ -838,7 +827,7 @@
         "Python"
       ],
       "status": "maintenance",
-      "last_modified": "2026-04-02T09:22:11.980429+00:00",
+      "last_modified": "2026-04-02T14:23:33.252967+00:00",
       "project_agents": [
         "notice-manager",
         "code-reviewer",
@@ -952,7 +941,7 @@
         "Python"
       ],
       "status": "active",
-      "last_modified": "2026-04-02T09:32:01.506821+00:00",
+      "last_modified": "2026-04-02T14:26:18.389308+00:00",
       "project_agents": [
         "plan",
         "code-reviewer",
