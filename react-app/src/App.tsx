@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import MindMapNode from './components/MindMapNode';
 import { mindMapData, MindMapNodeData } from './data/mindMapData';
 import './styles/mind-map.css';
@@ -61,12 +61,15 @@ function App() {
     }
   };
 
-  const resetView = () => {
-    setPosition({ x: 0, y: 0 });
-    setScale(1);
-    if (containerRef.current) {
-      containerRef.current.scrollTo({ left: 0, top: 0, behavior: 'smooth' });
-    }
+  const scrollToCenter = (delay: number) => {
+    setTimeout(() => {
+      const el = containerRef.current;
+      if (!el) return;
+      el.scrollTo({
+        left: Math.max(0, (el.scrollWidth - el.clientWidth) / 2),
+        top: 0,
+      });
+    }, delay);
   };
 
   const expandAll = () => {
@@ -82,12 +85,16 @@ function App() {
       if (currentNode.children) collectIds(currentNode.children);
     }
     setExpandedNodes(allNodeIds);
-    resetView();
+    setPosition({ x: 0, y: 0 });
+    setScale(1);
+    scrollToCenter(900); // after all animations settle (stagger 220ms + anim 400ms + buffer)
   };
 
   const collapseAll = () => {
     setExpandedNodes(new Set([currentRoot]));
-    resetView();
+    setPosition({ x: 0, y: 0 });
+    setScale(1);
+    scrollToCenter(150);
   };
 
   const isFullyExpanded = currentNode && currentNode.children &&
@@ -198,12 +205,19 @@ function App() {
     setIsPanning(false);
   };
 
-  // Mouse wheel zoom
-  const handleWheel = (e: React.WheelEvent) => {
+  // Mouse wheel zoom — must be non-passive to call preventDefault
+  const handleWheelNative = useCallback((e: WheelEvent) => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? -0.1 : 0.1;
     setScale(prev => Math.max(0.3, Math.min(3, prev + delta)));
-  };
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener('wheel', handleWheelNative, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheelNative);
+  }, [handleWheelNative]);
 
   // Touch handlers for mobile pinch-to-zoom
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -354,7 +368,6 @@ function App() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        onWheel={handleWheel}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
