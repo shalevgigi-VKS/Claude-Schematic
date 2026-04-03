@@ -135,8 +135,9 @@ function NodeConnectors({ wrapperRef, parentRef, childRefs, color, isClosing }: 
       const cRect = ref.current.getBoundingClientRect();
       const toX = cRect.left + cRect.width / 2 - wRect.left;
       const toY = cRect.top - wRect.top;
-      const midY = (fromY + toY) / 2;
-      return `M ${fromX} ${fromY} C ${fromX} ${midY}, ${toX} ${midY}, ${toX} ${toY}`;
+      // Orthogonal step connector: vertical down → horizontal → vertical up to child
+      const midY = fromY + (toY - fromY) * 0.5;
+      return `M ${fromX} ${fromY} L ${fromX} ${midY} L ${toX} ${midY} L ${toX} ${toY}`;
     }).filter(Boolean);
 
     setPaths(newPaths);
@@ -175,7 +176,7 @@ function NodeConnectors({ wrapperRef, parentRef, childRefs, color, isClosing }: 
       {paths.map((d, i) => (
         <path key={i} d={d}
           stroke={`url(#cg-${cid})`}
-          strokeWidth="2" fill="none" strokeLinecap="round"
+          strokeWidth="2.5" fill="none" strokeLinecap="square" strokeLinejoin="miter"
           markerEnd={`url(#arr-${cid})`}
           style={{
             animation: isClosing

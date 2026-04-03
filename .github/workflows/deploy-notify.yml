@@ -9,10 +9,6 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Notify iPhone — code updated
+      - name: Notify iPhone — site updated
         run: |
-          curl -s -X POST https://ntfy.sh/CloudeCode \
-            -H "Title: אבולוציה סכמטית — עודכן ✅" \
-            -H "Priority: low" \
-            -H "Tags: white_check_mark" \
-            -H "Click: https://evolution-schematic.vercel.app"
+          curl -s -X POST https://ntfy.sh -H 'Content-Type: application/json' --data-binary '{"topic":"CloudeCode","title":"אבולוציה סכמטית — עודכן","message":"","priority":2,"tags":["white_check_mark"],"click":"https://evolution-schematic.vercel.app"}'
