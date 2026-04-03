@@ -9,15 +9,17 @@ Last updated: 2026-04-03 (session 2)
 - Data: `data/snapshot.json` → `scanner/gen_react_data.py` → `react-app/src/data/mindMapData.ts`
 
 ## הצעד הבא
-- בדוק שהאתר עולה תקין ב-iPhone
+- לאמת שה-auto-deploy ב-Vercel בנה את React בהצלחה (commit 140e7af)
 - פיפליין אוטומטי כל יום ראשון: `scanner/run_weekly.ps1` (scan → gen data → build → deploy → push)
 
 ## החלטות מחייבות
 - אסור לגעת בהגדרות GitHub Pages — הושבת לחלוטין (2026-04-03)
 - React app חי ב-`react-app/` — אסור לערוך `mindMapData.ts` ידנית, תמיד דרך `gen_react_data.py`
 - גיבוי vanilla D3 שמור ב-`backup/vanilla-d3-2026-04-02/`
+- **D3 files נמחקו מ-root** (2026-04-03) — index.html, css/, js/, assets/ נמחקו כדי ש-Vercel לא יגיש אתר ישן
+- **root vercel.json** מגדיר buildCommand שמבנה מ-react-app/ — Vercel auto-deploy תמיד יגיש React
 
-## שינויים אחרונים (session 2 — 2026-04-03)
+## שינויים אחרונים (session 3 — 2026-04-03)
 - **GitHub Actions תוקן** — deploy-notify.yml הסיר GitHub Pages deploy (שהיה disabled ושלח התראות כישלון). עכשיו רק notify פשוט על push
 - **SVG connectors תוקנו** — NodeConnectors עבר ל-mind-map-node-wrapper; callback ref כותב לשני refים → קוי בזייה מתחברים נכון
 - **Descriptions לכל node** — 30+ תיאורי סוכנים + 13 תיאורי סקילים ב-gen_react_data.py
@@ -25,6 +27,8 @@ Last updated: 2026-04-03 (session 2)
 - **שני כפתורים קבועים** — הרחב הכל / כווץ הכל
 - **שכבה 3 בעמודה** — level >= 2 מוצג כ-column-layout
 - **vercel_deploy.ps1 תוקן** — פורס מ-react-app/ לא מ-root
+- **D3 root files נמחקו לצמיתות** — index.html, css/, js/, assets/ הוסרו; root vercel.json מבנה React
+- **התראות iPhone אחידות** — כל הפרויקטים: "ProjectName — עודכן ✅" בלבד, ללא גוף הודעה
 
 ## מה הושלם
 - **React migration הושלם (2026-04-03)** — mind-map-system.zip → react-app/

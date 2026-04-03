@@ -21,17 +21,16 @@ if ($LASTEXITCODE -eq 0 -or $LASTEXITCODE -eq $null) {
     Write-Host "Vercel Deploy Success! Sending Notification."
     $now = Get-Date -Format "dd.MM.yyyy HH:mm IL"
     Invoke-RestMethod -Uri "https://ntfy.sh/CloudeCode" -Method Post -Headers @{
-        "Title" = "אבולוציה סכמטית — מיפוי ואומת ופרסם ע״ג Vercel ✅";
-        "Tags" = "globe_with_meridians";
+        "Title" = "אבולוציה סכמטית — עודכן ✅";
+        "Tags" = "white_check_mark";
         "Priority" = "default";
         "Click" = "https://evolution-schematic.vercel.app"
-    } -Body "עדכון אוטומטי מקומי הושלם ופורסם בהצלחה מ-Vercel — $now"
+    }
 } else {
     Write-Host "Deploy failed! Exit Code: $LASTEXITCODE"
-    $now = Get-Date -Format "dd.MM.yyyy HH:mm IL"
     Invoke-RestMethod -Uri "https://ntfy.sh/CloudeCode" -Method Post -Headers @{
-        "Title" = "אבולוציה סכמטית — עדכון Vercel נכשל ⚠️";
+        "Title" = "אבולוציה סכמטית — שגיאה בפריסה ⚠️";
         "Tags" = "x";
-        "Priority" = "high";
-    } -Body "שגיאה בפריסה המקומית - בדוק לוגים — $now"
+        "Priority" = "high"
+    }
 }
