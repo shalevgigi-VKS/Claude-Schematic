@@ -1,13 +1,21 @@
 $ErrorActionPreference = "Stop"
 $ProjectPath = "E:\Claude\Shalev's_Projects\8_EvolutionSchematic"
-Set-Location $ProjectPath
+$ReactDir    = "$ProjectPath\react-app"
 
 Write-Host "--- Schematic Evolution Update ---"
 Write-Host "Running Scanner..."
+Set-Location $ProjectPath
 python scanner\scan_system.py
 
+Write-Host "Regenerating React data..."
+python scanner\gen_react_data.py
+
+Write-Host "Building React app..."
+Set-Location $ReactDir
+pnpm build
+
 Write-Host "Deploying to Vercel (Production)..."
-npx vercel --prod --yes
+vercel deploy --prod --yes
 
 if ($LASTEXITCODE -eq 0 -or $LASTEXITCODE -eq $null) {
     Write-Host "Vercel Deploy Success! Sending Notification."
