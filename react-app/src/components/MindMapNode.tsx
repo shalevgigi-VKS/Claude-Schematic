@@ -124,20 +124,30 @@ function NodeConnectors({ wrapperRef, parentRef, childRefs, color, isClosing }: 
 
   const calc = useCallback(() => {
     if (!wrapperRef.current || !parentRef.current || !svgRef.current) return;
-    const wRect = wrapperRef.current.getBoundingClientRect();
-    const pRect = parentRef.current.getBoundingClientRect();
 
-    const fromX = pRect.left + pRect.width / 2 - wRect.left;
-    const fromY = pRect.bottom - wRect.top;
+    const getOffset = (el: HTMLElement, ancestor: HTMLElement) => {
+      let x = 0, y = 0;
+      let cur: HTMLElement | null = el;
+      while (cur && cur !== ancestor) {
+        x += cur.offsetLeft;
+        y += cur.offsetTop;
+        cur = cur.offsetParent as HTMLElement | null;
+      }
+      return { x, y, w: el.offsetWidth, h: el.offsetHeight };
+    };
+
+    const p = getOffset(parentRef.current, wrapperRef.current);
+    const fromX = p.x + p.w / 2;
+    const fromY = p.y + p.h;
 
     const newPaths = childRefs.map(ref => {
       if (!ref.current) return '';
-      const cRect = ref.current.getBoundingClientRect();
-      const toX = cRect.left + cRect.width / 2 - wRect.left;
-      const toY = cRect.top - wRect.top;
-      // Orthogonal step connector: vertical down → horizontal → vertical up to child
-      const midY = fromY + (toY - fromY) * 0.5;
-      return `M ${fromX} ${fromY} L ${fromX} ${midY} L ${toX} ${midY} L ${toX} ${toY}`;
+      const c = getOffset(ref.current, wrapperRef.current);
+      const toX = c.x + c.w / 2;
+      const toY = c.y;
+      // Smooth cubic bezier: S-curve from parent bottom to child top
+      const cy = fromY + (toY - fromY) * 0.5;
+      return `M ${fromX} ${fromY} C ${fromX} ${cy} ${toX} ${cy} ${toX} ${toY}`;
     }).filter(Boolean);
 
     setPaths(newPaths);
@@ -176,7 +186,7 @@ function NodeConnectors({ wrapperRef, parentRef, childRefs, color, isClosing }: 
       {paths.map((d, i) => (
         <path key={i} d={d}
           stroke={`url(#cg-${cid})`}
-          strokeWidth="2.5" fill="none" strokeLinecap="square" strokeLinejoin="miter"
+          strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"
           markerEnd={`url(#arr-${cid})`}
           style={{
             animation: isClosing
