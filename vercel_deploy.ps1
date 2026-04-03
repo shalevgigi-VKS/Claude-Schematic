@@ -15,6 +15,7 @@ Set-Location $ReactDir
 pnpm build
 
 Write-Host "Deploying to Vercel (Production)..."
+Set-Location $ProjectPath
 vercel deploy --prod --yes
 
 if ($LASTEXITCODE -eq 0 -or $LASTEXITCODE -eq $null) {
