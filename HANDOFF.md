@@ -1,16 +1,18 @@
 # Evolution Schematic — HANDOFF
-Last updated: 2026-04-03 (session 3)
+Last updated: 2026-04-03 (session 4 — COMPLETE)
 
 ## מצב נוכחי
 - פרויקט ID: 8 (בתיקייה 8_EvolutionSchematic)
-- מצב: **פעיל — React + Vite + Vercel production** ✅
+- מצב: **פרוייקט מושלם ✅ — ללא משימות פתוחות**
 - URL: https://evolution-schematic.vercel.app
 - Stack: React 18 + TypeScript + Vite + Tailwind + shadcn/ui
 - Data: `data/snapshot.json` → `scanner/gen_react_data.py` → `react-app/src/data/mindMapData.ts`
 
-## הצעד הבא
-- לאמת שה-auto-deploy מ-GitHub push מגיש את React (rootDirectory=react-app מוגדר ב-Vercel API)
-- פיפליין אוטומטי כל יום ראשון: `scanner/run_weekly.ps1` (scan → gen data → build → deploy → push)
+## אין צעד הבא — הכל פועל
+- Task Scheduler רשום: `SchematicEvolution_WeeklyScanner` — כל יום ראשון 11:00 ✅
+- Pipeline: scan → gen → build → deploy → push → iPhone notification ✅
+- Arrow rendering: offsetParent-based coords, stable on scroll/zoom/pan ✅
+- Layout: column רק לשכבה האחרונה (childrenAreLeaves), שאר השכבות row ✅
 
 ## החלטות מחייבות
 - אסור לגעת בהגדרות GitHub Pages — הושבת לחלוטין (2026-04-03)

@@ -2,7 +2,7 @@
 # Run as Administrator once to register the task
 
 $TaskName = "SchematicEvolution_WeeklyScanner"
-$ScriptPath = "e:\Claude\Shalev's_Projects\0_EvolutionSchematic\scanner\run_weekly.ps1"
+$ScriptPath = "e:\Claude\Shalev's_Projects\8_EvolutionSchematic\scanner\run_weekly.ps1"
 
 # Remove existing task if present
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
