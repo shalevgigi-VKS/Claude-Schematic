@@ -65,10 +65,45 @@ def build_agents(agents):
     ops_names   = {'backup-agent','bug-learner','loop-operator','refactor-cleaner',
                    'harness-optimizer','doc-updater','e2e-runner'}
 
+    # Descriptions per agent name (human-readable purpose)
+    agent_desc = {
+        'architect':             'תכנון ארכיטקטורת מערכת',
+        'planner':               'תכנון שלבי מימוש',
+        'plan':                  'בניית תוכנית עבודה',
+        'tdd-guide':             'פיתוח מונחה בדיקות',
+        'code-reviewer':         'ביקורת קוד — איכות ואבטחה',
+        'typescript-reviewer':   'ביקורת TypeScript/JavaScript',
+        'python-reviewer':       'ביקורת Python ו-PEP 8',
+        'rust-reviewer':         'ביקורת Rust — בעלות ו-lifetimes',
+        'go-reviewer':           'ביקורת Go — idiomatic patterns',
+        'cpp-reviewer':          'ביקורת C++ — זיכרון ובטיחות',
+        'java-reviewer':         'ביקורת Java ו-Spring Boot',
+        'kotlin-reviewer':       'ביקורת Kotlin ו-Android',
+        'flutter-reviewer':      'ביקורת Flutter/Dart',
+        'security-reviewer':     'ניתוח פגיעויות אבטחה',
+        'database-reviewer':     'אופטימיזציית SQL ו-DB',
+        'build-error-resolver':  'תיקון שגיאות Build',
+        'go-build-resolver':     'תיקון Build ל-Go',
+        'rust-build-resolver':   'תיקון Build ל-Rust',
+        'cpp-build-resolver':    'תיקון Build ל-C++',
+        'java-build-resolver':   'תיקון Build ל-Java',
+        'kotlin-build-resolver': 'תיקון Build ל-Kotlin',
+        'pytorch-build-resolver':'תיקון שגיאות PyTorch/CUDA',
+        'backup-agent':          'גיבוי חודשי של המערכת',
+        'bug-learner':           'למידה ומניעת באגים חוזרים',
+        'loop-operator':         'ניטור לולאות סוכן אוטונומיות',
+        'refactor-cleaner':      'ניקוי קוד מת ו-dead imports',
+        'harness-optimizer':     'אופטימיזציית תצורת הסוכן',
+        'doc-updater':           'עדכון תיעוד ו-codemaps',
+        'e2e-runner':            'בדיקות End-to-End עם Playwright',
+        'general-purpose':       'סוכן כלל-תכליתי',
+        'Explore':               'חקירת codebase מהירה',
+    }
+
     for a in agents:
         name = a if isinstance(a, str) else a.get('name','?')
         id_  = f"ag-{name.replace('-','_').replace('/','_')}"
-        desc = ''
+        desc = agent_desc.get(name, f'סוכן מתמחה — {name}')
         n    = node(id_, name, 'agent', '#EF4444', desc)
         if name in arch_names:
             n['color'] = '#EF4444'; groups['agents-arch'][2].append(n)
@@ -101,11 +136,28 @@ def build_skills(skills):
         'skills-learn':  ('למידה ושיפור',   '#93C5FD', []),
         'skills-infra':  ('תשתית',          '#BFDBFE', []),
     }
+    skill_desc_map = {
+        'tdd-workflow':            'פיתוח מונחה בדיקות TDD',
+        'e2e-testing':             'בדיקות E2E עם Playwright',
+        'ai-regression-testing':   'רגרסיה לפיתוח מבוסס AI',
+        'verification-loop':       'לולאת אימות תוצרים',
+        'eval-harness':            'מסגרת הערכת איכות',
+        'frontend-design':         'ממשק משתמש — production grade',
+        'update-docs':             'עדכון תיעוד אוטומטי',
+        'update-codemaps':         'עדכון מפות קוד',
+        'continuous-learning':     'למידה מדפוסים חוזרים',
+        'continuous-learning-v2':  'למידה אינסטינקטיבית',
+        'ideation':                'עיבוד brain dumps לתוכנית',
+        'strategic-compact':       'דחיסת context אסטרטגית',
+        'iterative-retrieval':     'שיפור הדרגתי של context',
+    }
+
     for s in skills:
         name   = s if isinstance(s, str) else s.get('name','?')
         id_    = f"sk-{name.replace('-','_').replace('/','_')}"
         status = '' if isinstance(s, str) else s.get('status','')
-        n      = node(id_, name, 'skill', '#3B82F6')
+        desc   = skill_desc_map.get(name, f'סקיל — {name}')
+        n      = node(id_, name, 'skill', '#3B82F6', desc)
         if name in dev_names:
             n['color'] = '#3B82F6'; groups['skills-dev'][2].append(n)
         elif name in design_names:

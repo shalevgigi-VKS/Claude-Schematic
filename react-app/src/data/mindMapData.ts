@@ -27,17 +27,20 @@ export const mindMapData: MindMapNodeData = { id: 'root',
             { id: 'ag-architect',
               name: 'architect',
               type: 'agent',
-              color: '#EF4444'
+              color: '#EF4444',
+              description: 'תכנון ארכיטקטורת מערכת'
             },
             { id: 'ag-planner',
               name: 'planner',
               type: 'agent',
-              color: '#EF4444'
+              color: '#EF4444',
+              description: 'תכנון שלבי מימוש'
             },
             { id: 'ag-tdd_guide',
               name: 'tdd-guide',
               type: 'agent',
-              color: '#EF4444'
+              color: '#EF4444',
+              description: 'פיתוח מונחה בדיקות'
             },
           ]
         },
@@ -49,57 +52,68 @@ export const mindMapData: MindMapNodeData = { id: 'root',
             { id: 'ag-code_reviewer',
               name: 'code-reviewer',
               type: 'agent',
-              color: '#F87171'
+              color: '#F87171',
+              description: 'ביקורת קוד — איכות ואבטחה'
             },
             { id: 'ag-cpp_reviewer',
               name: 'cpp-reviewer',
               type: 'agent',
-              color: '#F87171'
+              color: '#F87171',
+              description: 'ביקורת C++ — זיכרון ובטיחות'
             },
             { id: 'ag-database_reviewer',
               name: 'database-reviewer',
               type: 'agent',
-              color: '#F87171'
+              color: '#F87171',
+              description: 'אופטימיזציית SQL ו-DB'
             },
             { id: 'ag-flutter_reviewer',
               name: 'flutter-reviewer',
               type: 'agent',
-              color: '#F87171'
+              color: '#F87171',
+              description: 'ביקורת Flutter/Dart'
             },
             { id: 'ag-go_reviewer',
               name: 'go-reviewer',
               type: 'agent',
-              color: '#F87171'
+              color: '#F87171',
+              description: 'ביקורת Go — idiomatic patterns'
             },
             { id: 'ag-java_reviewer',
               name: 'java-reviewer',
               type: 'agent',
-              color: '#F87171'
+              color: '#F87171',
+              description: 'ביקורת Java ו-Spring Boot'
             },
             { id: 'ag-kotlin_reviewer',
               name: 'kotlin-reviewer',
               type: 'agent',
-              color: '#F87171'
+              color: '#F87171',
+              description: 'ביקורת Kotlin ו-Android'
             },
             { id: 'ag-python_reviewer',
               name: 'python-reviewer',
               type: 'agent',
-              color: '#F87171'
+              color: '#F87171',
+              description: 'ביקורת Python ו-PEP 8'
             },
             { id: 'ag-rust_reviewer',
               name: 'rust-reviewer',
               type: 'agent',
-              color: '#F87171'
+              color: '#F87171',
+              description: 'ביקורת Rust — בעלות ו-lifetimes'
             },
             { id: 'ag-security_reviewer',
               name: 'security-reviewer',
               type: 'agent',
-              color: '#F87171'
+              color: '#F87171',
+              description: 'ניתוח פגיעויות אבטחה'
             },
             { id: 'ag-typescript_reviewer',
               name: 'typescript-reviewer',
               type: 'agent',
-              color: '#F87171'
+              color: '#F87171',
+              description: 'ביקורת TypeScript/JavaScript'
             },
           ]
         },
@@ -111,37 +125,44 @@ export const mindMapData: MindMapNodeData = { id: 'root',
             { id: 'ag-build_error_resolver',
               name: 'build-error-resolver',
               type: 'agent',
-              color: '#DC2626'
+              color: '#DC2626',
+              description: 'תיקון שגיאות Build'
             },
             { id: 'ag-cpp_build_resolver',
               name: 'cpp-build-resolver',
               type: 'agent',
-              color: '#DC2626'
+              color: '#DC2626',
+              description: 'תיקון Build ל-C++'
             },
             { id: 'ag-go_build_resolver',
               name: 'go-build-resolver',
               type: 'agent',
-              color: '#DC2626'
+              color: '#DC2626',
+              description: 'תיקון Build ל-Go'
             },
             { id: 'ag-java_build_resolver',
               name: 'java-build-resolver',
               type: 'agent',
-              color: '#DC2626'
+              color: '#DC2626',
+              description: 'תיקון Build ל-Java'
             },
             { id: 'ag-kotlin_build_resolver',
               name: 'kotlin-build-resolver',
               type: 'agent',
-              color: '#DC2626'
+              color: '#DC2626',
+              description: 'תיקון Build ל-Kotlin'
             },
             { id: 'ag-pytorch_build_resolver',
               name: 'pytorch-build-resolver',
               type: 'agent',
-              color: '#DC2626'
+              color: '#DC2626',
+              description: 'תיקון שגיאות PyTorch/CUDA'
             },
             { id: 'ag-rust_build_resolver',
               name: 'rust-build-resolver',
               type: 'agent',
-              color: '#DC2626'
+              color: '#DC2626',
+              description: 'תיקון Build ל-Rust'
             },
           ]
         },
@@ -153,37 +174,44 @@ export const mindMapData: MindMapNodeData = { id: 'root',
             { id: 'ag-backup_agent',
               name: 'backup-agent',
               type: 'agent',
-              color: '#B91C1C'
+              color: '#B91C1C',
+              description: 'גיבוי חודשי של המערכת'
             },
             { id: 'ag-bug_learner',
               name: 'bug-learner',
               type: 'agent',
-              color: '#B91C1C'
+              color: '#B91C1C',
+              description: 'למידה ומניעת באגים חוזרים'
             },
             { id: 'ag-doc_updater',
               name: 'doc-updater',
               type: 'agent',
-              color: '#B91C1C'
+              color: '#B91C1C',
+              description: 'עדכון תיעוד ו-codemaps'
             },
             { id: 'ag-e2e_runner',
               name: 'e2e-runner',
               type: 'agent',
-              color: '#B91C1C'
+              color: '#B91C1C',
+              description: 'בדיקות End-to-End עם Playwright'
             },
             { id: 'ag-harness_optimizer',
               name: 'harness-optimizer',
               type: 'agent',
-              color: '#B91C1C'
+              color: '#B91C1C',
+              description: 'אופטימיזציית תצורת הסוכן'
             },
             { id: 'ag-loop_operator',
               name: 'loop-operator',
               type: 'agent',
-              color: '#B91C1C'
+              color: '#B91C1C',
+              description: 'ניטור לולאות סוכן אוטונומיות'
             },
             { id: 'ag-refactor_cleaner',
               name: 'refactor-cleaner',
               type: 'agent',
-              color: '#B91C1C'
+              color: '#B91C1C',
+              description: 'ניקוי קוד מת ו-dead imports'
             },
           ]
         },
@@ -195,37 +223,44 @@ export const mindMapData: MindMapNodeData = { id: 'root',
             { id: 'ag-chadshani_optimizer',
               name: 'chadshani-optimizer',
               type: 'agent',
-              color: '#991B1B'
+              color: '#991B1B',
+              description: 'סוכן מתמחה — chadshani-optimizer'
             },
             { id: 'ag-chief_of_staff',
               name: 'chief-of-staff',
               type: 'agent',
-              color: '#991B1B'
+              color: '#991B1B',
+              description: 'סוכן מתמחה — chief-of-staff'
             },
             { id: 'ag-docs_lookup',
               name: 'docs-lookup',
               type: 'agent',
-              color: '#991B1B'
+              color: '#991B1B',
+              description: 'סוכן מתמחה — docs-lookup'
             },
             { id: 'ag-notice_manager',
               name: 'notice-manager',
               type: 'agent',
-              color: '#991B1B'
+              color: '#991B1B',
+              description: 'סוכן מתמחה — notice-manager'
             },
             { id: 'ag-order_guard',
               name: 'order-guard',
               type: 'agent',
-              color: '#991B1B'
+              color: '#991B1B',
+              description: 'סוכן מתמחה — order-guard'
             },
             { id: 'ag-project_status',
               name: 'project-status',
               type: 'agent',
-              color: '#991B1B'
+              color: '#991B1B',
+              description: 'סוכן מתמחה — project-status'
             },
             { id: 'ag-README',
               name: 'README',
               type: 'agent',
-              color: '#991B1B'
+              color: '#991B1B',
+              description: 'סוכן מתמחה — README'
             },
           ]
         },
@@ -245,27 +280,32 @@ export const mindMapData: MindMapNodeData = { id: 'root',
             { id: 'sk-ai_regression_testing',
               name: 'ai-regression-testing',
               type: 'skill',
-              color: '#3B82F6'
+              color: '#3B82F6',
+              description: 'רגרסיה לפיתוח מבוסס AI'
             },
             { id: 'sk-e2e_testing',
               name: 'e2e-testing',
               type: 'skill',
-              color: '#3B82F6'
+              color: '#3B82F6',
+              description: 'בדיקות E2E עם Playwright'
             },
             { id: 'sk-eval_harness',
               name: 'eval-harness',
               type: 'skill',
-              color: '#3B82F6'
+              color: '#3B82F6',
+              description: 'מסגרת הערכת איכות'
             },
             { id: 'sk-tdd_workflow',
               name: 'tdd-workflow',
               type: 'skill',
-              color: '#3B82F6'
+              color: '#3B82F6',
+              description: 'פיתוח מונחה בדיקות TDD'
             },
             { id: 'sk-verification_loop',
               name: 'verification-loop',
               type: 'skill',
-              color: '#3B82F6'
+              color: '#3B82F6',
+              description: 'לולאת אימות תוצרים'
             },
           ]
         },
@@ -277,7 +317,8 @@ export const mindMapData: MindMapNodeData = { id: 'root',
             { id: 'sk-frontend_design',
               name: 'frontend-design',
               type: 'skill',
-              color: '#60A5FA'
+              color: '#60A5FA',
+              description: 'ממשק משתמש — production grade'
             },
           ]
         },
@@ -289,27 +330,32 @@ export const mindMapData: MindMapNodeData = { id: 'root',
             { id: 'sk-continuous_learning',
               name: 'continuous-learning',
               type: 'skill',
-              color: '#93C5FD'
+              color: '#93C5FD',
+              description: 'למידה מדפוסים חוזרים'
             },
             { id: 'sk-continuous_learning_v2',
               name: 'continuous-learning-v2',
               type: 'skill',
-              color: '#93C5FD'
+              color: '#93C5FD',
+              description: 'למידה אינסטינקטיבית'
             },
             { id: 'sk-ideation',
               name: 'ideation',
               type: 'skill',
-              color: '#93C5FD'
+              color: '#93C5FD',
+              description: 'עיבוד brain dumps לתוכנית'
             },
             { id: 'sk-iterative_retrieval',
               name: 'iterative-retrieval',
               type: 'skill',
-              color: '#93C5FD'
+              color: '#93C5FD',
+              description: 'שיפור הדרגתי של context'
             },
             { id: 'sk-strategic_compact',
               name: 'strategic-compact',
               type: 'skill',
-              color: '#93C5FD'
+              color: '#93C5FD',
+              description: 'דחיסת context אסטרטגית'
             },
           ]
         },
@@ -321,37 +367,44 @@ export const mindMapData: MindMapNodeData = { id: 'root',
             { id: 'sk-chadshani_quality_control',
               name: 'chadshani_quality_control',
               type: 'skill',
-              color: '#BFDBFE'
+              color: '#BFDBFE',
+              description: 'סקיל — chadshani_quality_control'
             },
             { id: 'sk-configure_ecc',
               name: 'configure-ecc',
               type: 'skill',
-              color: '#BFDBFE'
+              color: '#BFDBFE',
+              description: 'סקיל — configure-ecc'
             },
             { id: 'sk-gemini_api_dev',
               name: 'gemini-api-dev',
               type: 'skill',
-              color: '#BFDBFE'
+              color: '#BFDBFE',
+              description: 'סקיל — gemini-api-dev'
             },
             { id: 'sk-plankton_code_quality',
               name: 'plankton-code-quality',
               type: 'skill',
-              color: '#BFDBFE'
+              color: '#BFDBFE',
+              description: 'סקיל — plankton-code-quality'
             },
             { id: 'sk-project_guidelines_example',
               name: 'project-guidelines-example',
               type: 'skill',
-              color: '#BFDBFE'
+              color: '#BFDBFE',
+              description: 'סקיל — project-guidelines-example'
             },
             { id: 'sk-skill_creator',
               name: 'skill-creator',
               type: 'skill',
-              color: '#BFDBFE'
+              color: '#BFDBFE',
+              description: 'סקיל — skill-creator'
             },
             { id: 'sk-skill_stocktake',
               name: 'skill-stocktake',
               type: 'skill',
-              color: '#BFDBFE'
+              color: '#BFDBFE',
+              description: 'סקיל — skill-stocktake'
             },
           ]
         },
