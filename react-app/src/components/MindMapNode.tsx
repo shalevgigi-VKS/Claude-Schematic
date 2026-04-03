@@ -143,11 +143,14 @@ function NodeConnectors({ wrapperRef, parentRef, childRefs, color, isClosing }: 
   }, [wrapperRef, parentRef, childRefs]);
 
   useLayoutEffect(() => {
-    // Two passes: quick (layout ready) + after animation settles
-    const t1 = setTimeout(calc, 80);
-    const t2 = setTimeout(calc, 460);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  });
+    // Immediate pass + ResizeObserver so every animation frame recalcs
+    calc();
+    const ro = new ResizeObserver(() => calc());
+    if (wrapperRef.current) ro.observe(wrapperRef.current);
+    // Final pass after longest possible stagger+animation (220ms + 400ms)
+    const t = setTimeout(calc, 700);
+    return () => { ro.disconnect(); clearTimeout(t); };
+  }, [calc]);
 
   const cid = color.replace('#', '');
 

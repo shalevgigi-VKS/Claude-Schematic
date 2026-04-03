@@ -11,11 +11,8 @@ jobs:
     steps:
       - name: Notify iPhone — code updated
         run: |
-          COMMIT="${{ github.event.head_commit.message }}"
-          NOW=$(TZ=Asia/Jerusalem date +'%d.%m.%Y %H:%M')
           curl -s -X POST https://ntfy.sh/CloudeCode \
-            -H "Title: אבולוציה סכמטית — קוד עודכן ✅" \
+            -H "Title: אבולוציה סכמטית — עודכן ✅" \
             -H "Priority: low" \
-            -H "Tags: brain" \
-            -H "Click: https://evolution-schematic.vercel.app" \
-            -d "commit: $COMMIT — $NOW"
+            -H "Tags: white_check_mark" \
+            -H "Click: https://evolution-schematic.vercel.app"

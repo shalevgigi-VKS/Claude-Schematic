@@ -340,7 +340,6 @@ function App() {
             <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
           </svg>
         </button>
-        <span className="zoom-level">{Math.round(scale * 100)}%</span>
         <button className="zoom-btn" onClick={handleZoomOut} title="הקטן">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8"/>
