@@ -11,4 +11,4 @@ jobs:
     steps:
       - name: Notify iPhone — site updated
         run: |
-          curl -s -X POST https://ntfy.sh -H 'Content-Type: application/json' --data-binary '{"topic":"CloudeCode","title":"אבולוציה סכמטית — עודכן","message":"","priority":2,"tags":["white_check_mark"],"click":"https://evolution-schematic.vercel.app"}'
+          curl -s -X POST https://ntfy.sh -H 'Content-Type: application/json' --data-binary '{"topic":"CloudeCode","title":"אבולוציה סכמטית — עודכן ✅","message":"","priority":4,"tags":["white_check_mark"],"click":"https://evolution-schematic.vercel.app"}'

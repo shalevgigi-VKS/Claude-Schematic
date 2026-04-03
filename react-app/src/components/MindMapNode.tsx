@@ -216,7 +216,7 @@ function MindMapNode({
   const hasChildren = !!(node.children?.length);
   const isExpanded  = expandedNodes.has(node.id);
   const shouldRenderChildren = (isExpanded || isClosing) && hasChildren;
-  const useColumnLayout = level >= 2;
+  const useColumnLayout = level >= 1;
 
   // Callback ref: writes to BOTH internal nodeCardRef AND external cardRef
   const setCardRef = useCallback((el: HTMLDivElement | null) => {
