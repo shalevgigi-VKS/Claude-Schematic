@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { MindMapNodeData } from '../data/mindMapData';
 
 interface MindMapNodeProps {
@@ -9,7 +9,6 @@ interface MindMapNodeProps {
   level: number;
   isRoot?: boolean;
   cardRef?: React.RefObject<HTMLDivElement>;
-  animIndex?: number; // stagger index for entrance animation
 }
 
 const getNodeIcon = (type: string) => {
@@ -137,19 +136,19 @@ const getNodeIcon = (type: string) => {
 
 const getNodeClass = (type: string) => {
   switch (type) {
-    case 'root':      return 'node-root';
-    case 'skill':     return 'node-skill';
-    case 'plugin':    return 'node-plugin';
-    case 'folder':    return 'node-folder';
-    case 'file':      return 'node-file';
+    case 'root': return 'node-root';
+    case 'skill': return 'node-skill';
+    case 'plugin': return 'node-plugin';
+    case 'folder': return 'node-folder';
+    case 'file': return 'node-file';
     case 'reference': return 'node-reference';
-    case 'agent':     return 'node-agent';
-    case 'tool':      return 'node-tool';
-    default:          return 'node-default';
+    case 'agent': return 'node-agent';
+    case 'tool': return 'node-tool';
+    default: return 'node-default';
   }
 };
 
-// SVG bezier connectors from parent card bottom-center → each child card top-center
+// SVG connector: draws lines from parent node bottom-center to each child top-center
 function NodeConnectors({ parentRef, childRefs, color }: {
   parentRef: React.RefObject<HTMLDivElement>;
   childRefs: React.RefObject<HTMLDivElement>[];
@@ -178,90 +177,74 @@ function NodeConnectors({ parentRef, childRefs, color }: {
       setPaths(newPaths);
     };
 
-    const t = setTimeout(calc, 60);
+    // slight delay to let DOM settle after expand animation
+    const t = setTimeout(calc, 50);
     return () => clearTimeout(t);
   });
-
-  const colorId = color.replace('#', '');
 
   return (
     <svg
       ref={svgRef}
+      className="node-svg-connectors"
       style={{
         position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
         pointerEvents: 'none', overflow: 'visible', zIndex: 0,
       }}
     >
       <defs>
-        <linearGradient id={`cg-${colorId}`} x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor={color} stopOpacity="0.85" />
-          <stop offset="100%" stopColor={color} stopOpacity="0.25" />
+        <linearGradient id={`cg-${color.replace('#','')}`} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor={color} stopOpacity="0.8" />
+          <stop offset="100%" stopColor={color} stopOpacity="0.3" />
         </linearGradient>
-        <marker id={`arrow-${colorId}`} markerWidth="7" markerHeight="7"
-          refX="3.5" refY="3.5" orient="auto">
-          <path d="M0,0 L0,7 L7,3.5 z" fill={color} opacity="0.65" />
+        <marker id={`arrow-${color.replace('#','')}`} markerWidth="6" markerHeight="6"
+          refX="3" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 z" fill={color} opacity="0.6" />
         </marker>
       </defs>
       {paths.map((d, i) => (
         <path key={i} d={d}
-          stroke={`url(#cg-${colorId})`}
+          stroke={`url(#cg-${color.replace('#','')})`}
           strokeWidth="2"
           fill="none"
           strokeLinecap="round"
-          markerEnd={`url(#arrow-${colorId})`}
-          style={{ animation: 'connectorDraw 0.4s ease-out both' }}
+          markerEnd={`url(#arrow-${color.replace('#','')})`}
+          style={{ animation: 'connectorDraw 0.35s ease-out both' }}
         />
       ))}
     </svg>
   );
 }
 
-function MindMapNode({
-  node, expandedNodes, onToggle, onNavigate, level, isRoot, cardRef, animIndex = 0
-}: MindMapNodeProps) {
+function MindMapNode({ node, expandedNodes, onToggle, onNavigate, level, isRoot, cardRef }: MindMapNodeProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [isExpanding, setIsExpanding] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
-
   const nodeCardRef = useRef<HTMLDivElement>(null);
   const childCardRefs = useRef<React.RefObject<HTMLDivElement>[]>([]);
 
   const hasChildren = node.children && node.children.length > 0;
   const isExpanded = expandedNodes.has(node.id);
+  const shouldShowChildren = isExpanded && hasChildren;
 
-  // Keep children mounted during close animation
-  const shouldRenderChildren = (isExpanded || isClosing) && hasChildren;
+  // Check if this is a leaf level (children have no further children)
+  const isLeafLevel = hasChildren && node.children!.every(child => !child.children || child.children.length === 0);
 
-  // Level 2+ children → column/queue layout (third layer and beyond)
-  const useColumnLayout = level >= 2;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, level * 80);
+    return () => clearTimeout(timer);
+  }, [level]);
 
   const handleClick = () => {
-    if (!hasChildren) return;
-
-    if (isExpanded && !isClosing) {
-      // ── Close: animate out, then remove from expandedNodes
-      setIsClosing(true);
-      setIsAnimating(true);
-      setTimeout(() => {
-        setIsClosing(false);
-        setIsAnimating(false);
-        onToggle(node.id);
-      }, 310);
-    } else if (!isExpanded && !isClosing) {
-      // ── Open: add to expandedNodes, animate in, then auto-center
+    if (hasChildren) {
       setIsExpanding(true);
       setIsAnimating(true);
       onToggle(node.id);
       setTimeout(() => {
         setIsAnimating(false);
         setIsExpanding(false);
-        // Auto-center this node
-        nodeCardRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'center',
-        });
-      }, 420);
+      }, 400);
     }
   };
 
@@ -271,21 +254,17 @@ function MindMapNode({
     }
   };
 
-  // Stagger delay for entrance animation (capped to keep UX snappy)
-  const staggerDelay = Math.min(animIndex * 45, 200);
-
   return (
-    <div
-      className={`mind-map-node-wrapper level-${level}`}
-      style={{ '--anim-delay': `${staggerDelay}ms` } as React.CSSProperties}
-    >
-      {/* Node card */}
+    <div className={`mind-map-node-wrapper level-${level} ${isVisible ? 'visible' : ''}`}>
+      {/* The node card */}
       <div
         ref={cardRef || nodeCardRef}
         className={`mind-map-node ${getNodeClass(node.type)} ${hasChildren ? 'expandable' : ''} ${isExpanded ? 'expanded' : ''} ${isAnimating ? 'animating' : ''} ${isExpanding ? 'expanding' : ''}`}
         onClick={handleClick}
         onDoubleClick={handleDoubleClick}
-        style={{ '--node-color': node.color || '#6366F1' } as React.CSSProperties}
+        style={{
+          '--node-color': node.color || '#6366F1',
+        } as React.CSSProperties}
       >
         <div className="node-illustration-wrapper">
           {getNodeIcon(node.type)}
@@ -307,31 +286,30 @@ function MindMapNode({
         </div>
         {hasChildren && (
           <div className="expand-hint">
-            {isExpanded ? 'לחץ לסגירה' : 'לחץ לפתיחה'}
+            לחץ לפתיחה
           </div>
         )}
       </div>
 
-      {/* Children — with bezier SVG connectors and NotebookLM animations */}
-      {shouldRenderChildren && (() => {
-        // Ensure ref array is large enough
+      {/* Children — with SVG bezier connectors from parent to each child */}
+      {shouldShowChildren && (() => {
+        // ensure ref array is sized correctly
         while (childCardRefs.current.length < node.children!.length) {
           childCardRefs.current.push({ current: null } as React.RefObject<HTMLDivElement>);
         }
-
         return (
           <div
-            className={`mind-map-children-row ${isClosing ? 'closing' : ''}`}
+            className={`mind-map-children-row ${isLeafLevel ? 'leaf-level' : ''}`}
             style={{ position: 'relative' }}
           >
-            {/* Bezier tree-branch connectors */}
+            {/* SVG overlay — bezier curves from parent card to each child card */}
             <NodeConnectors
               parentRef={nodeCardRef as React.RefObject<HTMLDivElement>}
               childRefs={childCardRefs.current.slice(0, node.children!.length) as React.RefObject<HTMLDivElement>[]}
               color={node.color || '#6366F1'}
             />
 
-            <div className={`children-row ${useColumnLayout ? 'column-layout' : ''}`}>
+            <div className={`children-row ${isLeafLevel ? 'leaf-column' : ''}`}>
               {node.children!.map((child, index) => (
                 <div key={child.id} className="child-branch">
                   <MindMapNode
@@ -341,7 +319,6 @@ function MindMapNode({
                     onNavigate={onNavigate}
                     level={level + 1}
                     cardRef={childCardRefs.current[index] as React.RefObject<HTMLDivElement>}
-                    animIndex={index}
                   />
                 </div>
               ))}

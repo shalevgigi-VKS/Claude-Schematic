@@ -355,21 +355,27 @@ function App() {
         </button>
       </div>
 
-      {/* Always-visible Expand / Collapse buttons */}
-      <div className="action-btns">
-        <button className="action-btn expand" onClick={expandAll}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M4 4h6v6M20 20h-6v-6M14 10l-7 7M17 17l-7-7"/>
-          </svg>
-          הרחב הכל
-        </button>
-        <button className="action-btn collapse" onClick={collapseAll}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>
-          </svg>
-          כווץ הכל
-        </button>
-      </div>
+      {/* Expand/Collapse Toggle Button */}
+      <button
+        className={`toggle-all-btn ${isFullyExpanded ? 'collapse' : 'expand'}`}
+        onClick={toggleExpandCollapse}
+      >
+        {isFullyExpanded ? (
+          <>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>
+            </svg>
+            כווץ הכל
+          </>
+        ) : (
+          <>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 4h6v6M20 20h-6v-6M14 10l-7 7M17 17l-7-7"/>
+            </svg>
+            הרחב הכל
+          </>
+        )}
+      </button>
 
       {/* Mind Map Content - Scrollable */}
       <div

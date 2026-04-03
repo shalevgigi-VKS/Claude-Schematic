@@ -283,50 +283,44 @@ body {
   padding: 2px 0;
 }
 
-/* Two Always-Visible Action Buttons */
-.action-btns {
+/* Toggle All Button */
+.toggle-all-btn {
   position: fixed;
-  bottom: 68px;
+  bottom: 80px;
   left: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 90;
-}
-
-.action-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
-  border-radius: 10px;
+  padding: 12px 20px;
+  border-radius: 12px;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
-  font-size: 13px;
+  font-size: 14px;
   font-family: inherit;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.13);
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 90;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
-.action-btn.expand {
+.toggle-all-btn.expand {
   background: linear-gradient(135deg, #6366F1, #8B5CF6);
   color: white;
 }
 
-.action-btn.expand:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.4);
+.toggle-all-btn.expand:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
 }
 
-.action-btn.collapse {
+.toggle-all-btn.collapse {
   background: linear-gradient(135deg, #EF4444, #F87171);
   color: white;
 }
 
-.action-btn.collapse:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4);
+.toggle-all-btn.collapse:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
 }
 
 /* Mind Map Viewport - Scrollable */
@@ -354,39 +348,22 @@ body {
   padding: 60px 40px;
 }
 
-/* ─── Node Wrapper ─── */
+/* Node Wrapper */
 .mind-map-node-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   opacity: 0;
-  transform: scale(0.5) translateY(-12px);
-  /* NotebookLM spring entrance — stagger via --anim-delay */
-  animation: nbExpand 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  animation-delay: var(--anim-delay, 0ms);
+  transform: translateY(-15px);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ─── NotebookLM-style Animations ─── */
-@keyframes nbExpand {
-  0%   { opacity: 0; transform: scale(0.4) translateY(-14px); filter: blur(3px); }
-  55%  { opacity: 1; transform: scale(1.07) translateY(3px);  filter: blur(0); }
-  75%  { transform: scale(0.97) translateY(-1px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
+.mind-map-node-wrapper.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-@keyframes nbCollapse {
-  0%   { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
-  30%  { opacity: 0.7; transform: scale(1.04) translateY(-3px); }
-  100% { opacity: 0; transform: scale(0.3) translateY(-18px); filter: blur(4px); }
-}
-
-/* Children row — collapse animation */
-.mind-map-children-row.closing .mind-map-node-wrapper {
-  animation: nbCollapse 0.28s cubic-bezier(0.4, 0, 1, 1) both !important;
-  animation-delay: var(--anim-delay, 0ms) !important;
-}
-
-/* ─── Node Card ─── */
+/* Node Styles */
 .mind-map-node {
   position: relative;
   display: flex;
@@ -434,7 +411,7 @@ body {
 }
 
 .mind-map-node.expanding {
-  animation: stretchExpand 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: stretch-expand 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes pulse {
@@ -442,11 +419,23 @@ body {
   50% { transform: scale(0.97); }
 }
 
-@keyframes stretchExpand {
-  0%   { transform: scale(1); box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
-  30%  { transform: scale(1.08, 0.92); box-shadow: 0 12px 30px rgba(99,102,241,0.3); }
-  60%  { transform: scale(0.95, 1.05); box-shadow: 0 8px 25px rgba(99,102,241,0.25); }
-  100% { transform: scale(1); box-shadow: 0 6px 24px rgba(99,102,241,0.2); }
+@keyframes stretch-expand {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  }
+  30% {
+    transform: scale(1.08, 0.92);
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.3);
+  }
+  60% {
+    transform: scale(0.95, 1.05);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.25);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 6px 24px rgba(99, 102, 241, 0.2);
+  }
 }
 
 /* Node Types */
@@ -463,12 +452,12 @@ body {
   color: #6366F1;
 }
 
-.node-skill    { --node-color: #3B82F6; border-color: #DBEAFE; }
-.node-plugin   { --node-color: #10B981; border-color: #D1FAE5; }
-.node-folder   { --node-color: #8B5CF6; border-color: #EDE9FE; }
+.node-skill { --node-color: #3B82F6; border-color: #DBEAFE; }
+.node-plugin { --node-color: #10B981; border-color: #D1FAE5; }
+.node-folder { --node-color: #8B5CF6; border-color: #EDE9FE; }
 .node-file, .node-reference { --node-color: #F59E0B; border-color: #FEF3C7; min-width: 120px; }
-.node-agent    { --node-color: #EF4444; border-color: #FEE2E2; }
-.node-tool     { --node-color: #06B6D4; border-color: #CFFAFE; }
+.node-agent { --node-color: #EF4444; border-color: #FEE2E2; }
+.node-tool { --node-color: #06B6D4; border-color: #CFFAFE; }
 
 /* Node Illustration */
 .node-illustration-wrapper {
@@ -516,20 +505,17 @@ body {
   word-break: break-word;
 }
 
-/* Description — prominent summary line inside each card */
 .node-description {
   display: block;
-  font-size: 10.5px;
-  color: #475569;
-  margin-top: 3px;
-  line-height: 1.4;
-  font-style: italic;
-  opacity: 0.85;
+  font-size: 10px;
+  color: #64748B;
+  margin-top: 2px;
+  line-height: 1.3;
 }
 
 .node-chevron {
   color: #94A3B8;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
 }
 
@@ -554,34 +540,99 @@ body {
   opacity: 1;
 }
 
-/* ─── Children Layout ─── */
+/* Children Row - HORIZONTAL LAYOUT */
 .mind-map-children-row {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   position: relative;
-  /* Big gap so bezier curves are clearly visible as tree branches */
-  margin-top: 56px;
+}
+
+/* Main vertical connector from parent */
+.branch-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+/* The vertical line from parent to children */
+.branch-vertical-line {
+  width: 2px;
+  background: linear-gradient(to bottom, var(--node-color, #6366F1), #94A3B8);
+  animation: line-grow 0.3s ease-out;
+}
+
+@keyframes line-grow {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Arrow pointing down to children */
+.branch-arrow {
+  animation: arrow-appear 0.3s ease-out 0.1s both;
+  margin-top: 4px;
+}
+
+@keyframes arrow-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Horizontal line connecting all children */
+.children-horizontal-line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 2px;
+  background: linear-gradient(to right, transparent, #CBD5E1, #CBD5E1, transparent);
+  animation: line-expand 0.3s ease-out;
+}
+
+@keyframes line-expand {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .children-row {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 16px;
-  padding: 0 20px;
+  gap: 12px;
+  padding: 8px 20px 0 20px;
   flex-wrap: wrap;
   justify-content: center;
   position: relative;
 }
 
-/* Level 3+ (third layer and beyond) — column / queue layout */
-.children-row.column-layout {
+/* Leaf level - show as column */
+.children-row.leaf-column {
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  max-width: 300px;
+  gap: 4px;
+}
+
+.mind-map-children-row.leaf-level {
+  align-items: center;
 }
 
 .child-branch {
@@ -591,7 +642,68 @@ body {
   position: relative;
 }
 
-/* ─── Legend Bar ─── */
+/* Wrapper for child connector */
+.child-connector-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 5;
+}
+
+/* Small arrow at top of child connector */
+.child-arrow {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--node-color, #6366F1);
+  animation: arrow-appear 0.2s ease-out 0.1s both;
+}
+
+/* Individual vertical connector from horizontal line to each child */
+.child-connector {
+  width: 2px;
+  height: 12px;
+  background: linear-gradient(to bottom, #CBD5E1, var(--node-color, #6366F1));
+  animation: child-line-grow 0.25s ease-out;
+}
+
+@keyframes child-line-grow {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Horizontal connector between siblings */
+.sibling-connector {
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+}
+
+.sibling-line {
+  width: 16px;
+  height: 2px;
+  background: #CBD5E1;
+  animation: connector-appear 0.25s ease-out;
+}
+
+@keyframes connector-appear {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Legend Bar */
 .legend-bar {
   position: fixed;
   bottom: 0;
@@ -622,12 +734,7 @@ body {
   font-size: 16px;
 }
 
-/* ─── SVG Connectors ─── */
-.node-svg-connectors path {
-  /* drawn fresh each time — no extra animation needed */
-}
-
-/* ─── Responsive ─── */
+/* Responsive */
 @media (max-width: 768px) {
   .top-navigation {
     padding: 0 14px;
@@ -649,14 +756,11 @@ body {
     left: 14px;
   }
 
-  .action-btns {
-    bottom: 64px;
+  .toggle-all-btn {
+    bottom: 70px;
     left: 14px;
-  }
-
-  .action-btn {
-    padding: 8px 12px;
-    font-size: 12px;
+    padding: 10px 16px;
+    font-size: 13px;
   }
 
   .legend-bar {
@@ -673,15 +777,33 @@ body {
   }
 
   .children-row {
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .child-spacer {
+    width: 16px;
   }
 }
 
-/* ─── Scrollbar ─── */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #F1F5F9; border-radius: 4px; }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
 
 /* Touch feedback */
 @media (hover: none) {
@@ -691,7 +813,6 @@ body {
   }
 }
 
-/* SVG connector draw animation (retained) */
 @keyframes connectorDraw {
   from { stroke-dashoffset: 1000; stroke-dasharray: 1000; opacity: 0; }
   to   { stroke-dashoffset: 0;    stroke-dasharray: 1000; opacity: 1; }
