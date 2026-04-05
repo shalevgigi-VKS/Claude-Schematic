@@ -822,8 +822,11 @@ body {
 .overview-content {
   flex: 1;
   overflow: auto;
-  padding: 16px 20px;
+  padding: 16px 24px;
   background: #F8F9FF;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
 }
 
 .overview-loading,
