@@ -26,16 +26,20 @@ if ($LASTEXITCODE -ne 0) {
 
 # Step 3: Build React app
 Set-Location $ReactDir
-pnpm build 2>&1 | Add-Content $LogFile
+npx vite build 2>&1 | Add-Content $LogFile
 if ($LASTEXITCODE -ne 0) {
-    $Err = "[$Date] ERROR: pnpm build failed ($LASTEXITCODE)"
+    $Err = "[$Date] ERROR: vite build failed ($LASTEXITCODE)"
     Write-Host $Err; Add-Content $LogFile $Err; exit 1
 }
 
-# Step 4: Deploy to Vercel
-vercel deploy --prod --yes 2>&1 | Add-Content $LogFile
-if ($LASTEXITCODE -eq 0) {
-    $OK = "[$Date] Deploy OK — https://evolution-schematic.vercel.app"
+# Step 4: Deploy to Vercel + alias canonical domain
+Set-Location $ProjectDir
+$DeployOut = vercel deploy --prod --yes 2>&1
+$DeployOut | Add-Content $LogFile
+$DeployUrl = ($DeployOut | Select-String -Pattern "https://claude-brain-\w+-shalevgigi").Matches.Value
+if ($LASTEXITCODE -eq 0 -and $DeployUrl) {
+    vercel alias set $DeployUrl claude-brain-sg.vercel.app 2>&1 | Add-Content $LogFile
+    $OK = "[$Date] Deploy OK — https://claude-brain-sg.vercel.app"
     Write-Host $OK; Add-Content $LogFile $OK
 } else {
     $Warn = "[$Date] WARNING: vercel deploy failed ($LASTEXITCODE)"
