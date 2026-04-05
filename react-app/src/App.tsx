@@ -186,6 +186,12 @@ function App() {
     setPosition({ x: 0, y: 0 });
   };
 
+  // Center on mount and whenever navigation root changes
+  useEffect(() => {
+    setPosition({ x: 0, y: 0 });
+    scrollToCenter(300);
+  }, [currentRoot]);
+
   // Mouse drag (pan)
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
