@@ -125,16 +125,15 @@ function NodeConnectors({ wrapperRef, parentRef, childRefs, color, isClosing }: 
   const calc = useCallback(() => {
     if (!wrapperRef.current || !parentRef.current || !svgRef.current) return;
 
-    // getBoundingClientRect gives correct coords regardless of CSS positioning hierarchy
     const getOffset = (el: HTMLElement, ancestor: HTMLElement) => {
-      const eRect = el.getBoundingClientRect();
-      const aRect = ancestor.getBoundingClientRect();
-      return {
-        x: eRect.left - aRect.left,
-        y: eRect.top  - aRect.top,
-        w: eRect.width,
-        h: eRect.height,
-      };
+      let x = 0, y = 0;
+      let cur: HTMLElement | null = el;
+      while (cur && cur !== ancestor) {
+        x += cur.offsetLeft;
+        y += cur.offsetTop;
+        cur = cur.offsetParent as HTMLElement | null;
+      }
+      return { x, y, w: el.offsetWidth, h: el.offsetHeight };
     };
 
     const p = getOffset(parentRef.current, wrapperRef.current);
@@ -185,7 +184,7 @@ function NodeConnectors({ wrapperRef, parentRef, childRefs, color, isClosing }: 
         </marker>
       </defs>
       {paths.map((d, i) => (
-        <path key={i} d={d}
+        <path key={i} d={d} pathLength="1"
           stroke={`url(#cg-${cid})`}
           strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"
           markerEnd={`url(#arr-${cid})`}
