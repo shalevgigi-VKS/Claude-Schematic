@@ -19,6 +19,7 @@ function App() {
   const [isOverviewOpen, setIsOverviewOpen] = useState(false);
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
+  const rootCardRef = useRef<HTMLDivElement>(null);
   const [isPanning, setIsPanning] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const panStart = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
@@ -89,8 +90,10 @@ function App() {
     setExpandedNodes(allNodeIds);
     setPosition({ x: 0, y: 0 });
     setScale(1);
-    scrollToCenter(1000); // first pass
-    scrollToCenter(1800); // second pass after full DOM settle
+    // After all stagger+animations (max 220ms + 400ms = 620ms) scroll root into view
+    setTimeout(() => {
+      rootCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'center' });
+    }, 900);
   };
 
   const collapseAll = () => {
@@ -399,6 +402,7 @@ function App() {
               onNavigate={navigateToNode}
               level={0}
               isRoot={true}
+              cardRef={rootCardRef}
             />
           )}
         </div>
