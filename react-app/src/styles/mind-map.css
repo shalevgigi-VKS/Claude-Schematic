@@ -822,11 +822,14 @@ body {
 .overview-content {
   flex: 1;
   overflow: auto;
-  padding: 16px 24px;
+  padding: 24px 20px;
   background: #F8F9FF;
+}
+
+.overview-mindmap-content {
   display: flex;
-  align-items: flex-start;
   justify-content: center;
+  min-width: max-content;
 }
 
 .overview-loading,
