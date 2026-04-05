@@ -1,96 +1,79 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { generatedAt, systemStats } from '../data/systemOverview';
-import MindMapNode from './MindMapNode';
-import type { MindMapNodeData } from '../data/mindMapData';
 
 interface Props {
   onClose: () => void;
 }
 
-const systemMap: MindMapNodeData = {
-  id: 'sys-root', name: 'Claude SG', type: 'root', color: '#6366F1',
-  children: [
-    {
-      id: 'sys-agents', name: 'agents', description: 'סוכנים — 35', type: 'agent', color: '#EF4444',
-      children: [
-        { id: 'sys-a1', name: 'planner',          description: 'תכנון יישום',        type: 'agent', color: '#EF4444' },
-        { id: 'sys-a2', name: 'architect',         description: 'עיצוב ארכיטקטורה',  type: 'agent', color: '#EF4444' },
-        { id: 'sys-a3', name: 'code-reviewer',     description: 'ביקורת קוד',         type: 'agent', color: '#EF4444' },
-        { id: 'sys-a4', name: 'tdd-guide',         description: 'פיתוח מונחה-בדיקות', type: 'agent', color: '#EF4444' },
-        { id: 'sys-a5', name: 'security-reviewer', description: 'אבטחה',              type: 'agent', color: '#EF4444' },
-        { id: 'sys-a6', name: 'build-error-resolver', description: 'תיקון שגיאות build', type: 'agent', color: '#EF4444' },
-        { id: 'sys-a7', name: 'project-documenter', description: 'תיעוד פרויקטים',   type: 'agent', color: '#EF4444' },
-        { id: 'sys-a8', name: 'gap-analyzer',      description: 'ניתוח פערים',        type: 'agent', color: '#EF4444' },
-        { id: 'sys-a9', name: 'system-optimizer',  description: 'אופטימיזציה שבועית', type: 'agent', color: '#EF4444' },
-      ],
-    },
-    {
-      id: 'sys-skills', name: 'skills', description: 'סקילים — 18', type: 'skill', color: '#3B82F6',
-      children: [
-        { id: 'sys-s1', name: 'commit',            description: 'commit חכם',          type: 'skill', color: '#3B82F6' },
-        { id: 'sys-s2', name: 'review-pr',         description: 'סקירת Pull Request',  type: 'skill', color: '#3B82F6' },
-        { id: 'sys-s3', name: 'update-codemaps',   description: 'עדכון מפות קוד',      type: 'skill', color: '#3B82F6' },
-        { id: 'sys-s4', name: 'update-docs',       description: 'עדכון תיעוד',         type: 'skill', color: '#3B82F6' },
-        { id: 'sys-s5', name: 'evolution-update',  description: 'עדכון סכמטי',         type: 'skill', color: '#3B82F6' },
-        { id: 'sys-s6', name: 'pdf',               description: 'יצוא PDF',            type: 'skill', color: '#3B82F6' },
-      ],
-    },
-    {
-      id: 'sys-mcp', name: 'MCP servers', description: 'שרתי MCP — 15', type: 'plugin', color: '#10B981',
-      children: [
-        { id: 'sys-m1', name: 'filesystem',        description: 'גישה לקבצים',         type: 'plugin', color: '#10B981' },
-        { id: 'sys-m2', name: 'git',               description: 'ניהול גרסאות',        type: 'plugin', color: '#10B981' },
-        { id: 'sys-m3', name: 'Gmail',             description: 'ניהול דואר',          type: 'plugin', color: '#10B981' },
-        { id: 'sys-m4', name: 'Google Calendar',   description: 'ניהול לוח זמנים',     type: 'plugin', color: '#10B981' },
-        { id: 'sys-m5', name: 'Context7',          description: 'תיעוד ספריות',        type: 'plugin', color: '#10B981' },
-        { id: 'sys-m6', name: 'Figma',             description: 'עיצוב UI',            type: 'plugin', color: '#10B981' },
-      ],
-    },
-    {
-      id: 'sys-hooks', name: 'hooks', description: 'Hooks — 4', type: 'tool', color: '#EC4899',
-      children: [
-        { id: 'sys-h1', name: 'session-start',     description: 'Shadow scan אוטו',    type: 'tool', color: '#EC4899' },
-        { id: 'sys-h2', name: 'pre-tool-use',      description: 'ולידציה לפני כלי',    type: 'tool', color: '#EC4899' },
-        { id: 'sys-h3', name: 'post-tool-use',     description: 'בדיקה אחרי כלי',      type: 'tool', color: '#EC4899' },
-        { id: 'sys-h4', name: 'pre-compact',       description: 'שמירת הקשר',          type: 'tool', color: '#EC4899' },
-      ],
-    },
-    {
-      id: 'sys-modes', name: 'modes', description: 'מצבי עבודה — 14', type: 'folder', color: '#8B5CF6',
-      children: [
-        { id: 'sys-mo1', name: 'architect',        description: 'ברירת מחדל',          type: 'folder', color: '#8B5CF6' },
-        { id: 'sys-mo2', name: 'shadow (auto)',    description: 'סריקה בכל session',   type: 'folder', color: '#8B5CF6' },
-        { id: 'sys-mo3', name: 'build',            description: 'ביצוע מבוקר',         type: 'folder', color: '#8B5CF6' },
-        { id: 'sys-mo4', name: 'audit',            description: 'ניתוח בלבד',          type: 'folder', color: '#8B5CF6' },
-        { id: 'sys-mo5', name: 'knowledge',        description: 'שילוב ידע חדש',       type: 'folder', color: '#8B5CF6' },
-        { id: 'sys-mo6', name: 'consolidation',    description: 'גיבוש זיכרון',         type: 'folder', color: '#8B5CF6' },
-      ],
-    },
-    {
-      id: 'sys-projects', name: 'projects', description: 'פרויקטים — 8', type: 'folder', color: '#F59E0B',
-      children: [
-        { id: 'sys-p1', name: 'Chadshani',         description: 'מידע פיננסי יומי',    type: 'folder', color: '#F59E0B' },
-        { id: 'sys-p2', name: 'Evolution Schematic', description: 'מפת המערכת הזו',   type: 'folder', color: '#F59E0B' },
-        { id: 'sys-p3', name: 'LinkToText',        description: 'חילוץ טקסט מURL',    type: 'folder', color: '#F59E0B' },
-        { id: 'sys-p4', name: 'TmunoteAI',         description: 'יצירת תמונות',        type: 'folder', color: '#F59E0B' },
-        { id: 'sys-p5', name: 'LCL TCS',           description: 'אפליקציית לוגיסטיקה', type: 'folder', color: '#F59E0B' },
-        { id: 'sys-p6', name: 'גלגל הרגשות',       description: 'קריאטיב + AI',        type: 'folder', color: '#F59E0B' },
-      ],
-    },
-  ],
-};
+const layers = [
+  {
+    id: 'entry',
+    label: 'LAYER 1 — כניסה',
+    color: '#6366F1',
+    bg: 'rgba(99,102,241,0.08)',
+    border: 'rgba(99,102,241,0.35)',
+    nodes: [
+      { icon: '👤', title: 'User Message', sub: 'בקשה טקסטואלית' },
+      { icon: '⏰', title: 'Scheduler (cron)', sub: 'GitHub Actions · Windows Task' },
+    ],
+  },
+  {
+    id: 'orchestration',
+    label: 'LAYER 2 — תיאום ובקרה',
+    color: '#8B5CF6',
+    bg: 'rgba(139,92,246,0.08)',
+    border: 'rgba(139,92,246,0.35)',
+    nodes: [
+      { icon: '🧠', title: 'Claude Code', sub: 'Orchestrator · CLAUDE.md rules · model routing' },
+      { icon: '👁️', title: 'Shadow Agent', sub: 'auto-scan · CRITICAL/WARNING · context_hint.md' },
+      { icon: '⚙️', title: `Modes (${systemStats.modes})`, sub: 'architect · build · audit · shadow · knowledge…' },
+    ],
+  },
+  {
+    id: 'execution',
+    label: 'LAYER 3 — ביצוע',
+    color: '#EF4444',
+    bg: 'rgba(239,68,68,0.08)',
+    border: 'rgba(239,68,68,0.35)',
+    nodes: [
+      { icon: '🤖', title: `Agents (${systemStats.agents})`, sub: 'planner · architect · code-reviewer · tdd-guide · security…' },
+      { icon: '⚡', title: `Skills (${systemStats.skills})`, sub: 'commit · review-pr · update-docs · evolution-update…' },
+    ],
+  },
+  {
+    id: 'tools',
+    label: 'LAYER 4 — כלים וחיבורים',
+    color: '#10B981',
+    bg: 'rgba(16,185,129,0.08)',
+    border: 'rgba(16,185,129,0.35)',
+    nodes: [
+      { icon: '🔌', title: `MCP Servers (${systemStats.mcp})`, sub: 'filesystem · git · Gmail · Calendar · Context7 · Figma…' },
+      { icon: '🔗', title: `Hooks (${systemStats.hooks})`, sub: 'session-start · pre-tool-use · post-tool-use · pre-compact' },
+    ],
+  },
+  {
+    id: 'output',
+    label: 'LAYER 5 — תוצר וזיכרון',
+    color: '#F59E0B',
+    bg: 'rgba(245,158,11,0.08)',
+    border: 'rgba(245,158,11,0.35)',
+    nodes: [
+      { icon: '📁', title: `Projects (${systemStats.projects})`, sub: 'Chadshani · Evolution · LinkToText · TmunoteAI · LCL TCS…' },
+      { icon: '📝', title: 'Memory Files', sub: 'events.jsonl · MEMORY.md · shalev-patterns.md · skills_registry' },
+      { icon: '📊', title: 'Reports', sub: 'gap-report · shadow-log · scout-report · failures.jsonl' },
+    ],
+  },
+];
 
-// All nodes expanded by default (3 levels)
-const ALL_IDS = new Set<string>();
-const collectIds = (node: MindMapNodeData) => {
-  ALL_IDS.add(node.id);
-  node.children?.forEach(collectIds);
-};
-collectIds(systemMap);
+const connections = [
+  { from: 'entry',         to: 'orchestration', label: 'בקשה / טריגר' },
+  { from: 'orchestration', to: 'execution',     label: 'ניתוב לפי סוג' },
+  { from: 'execution',     to: 'tools',         label: 'שימוש בכלים' },
+  { from: 'tools',         to: 'output',        label: 'שמירה ופרסום' },
+  { from: 'output',        to: 'orchestration', label: 'עדכון זיכרון ↑', dashed: true },
+];
 
 export function SystemOverview({ onClose }: Props) {
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(ALL_IDS));
-
   const handleBackdrop = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
   };
@@ -101,21 +84,14 @@ export function SystemOverview({ onClose }: Props) {
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  const handleToggle = (id: string) => {
-    setExpandedNodes(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  };
-
   return (
     <div className="overview-backdrop" onClick={handleBackdrop}>
       <div className="overview-modal">
+
         <div className="overview-header">
           <div className="overview-title">
             <span>🧠</span>
-            <span>אבולוציה עכשוית</span>
+            <span>אבולוציה עכשוית — ארכיטקטורת שכבות</span>
           </div>
           <div className="overview-stats">
             <span>{systemStats.agents} סוכנים</span>
@@ -133,21 +109,59 @@ export function SystemOverview({ onClose }: Props) {
           </button>
         </div>
 
-        <div className="overview-content overview-mindmap-content">
-          <MindMapNode
-            node={systemMap}
-            expandedNodes={expandedNodes}
-            onToggle={handleToggle}
-            onNavigate={() => {}}
-            level={0}
-            isRoot={true}
-          />
+        <div className="overview-content">
+          <div className="arch-wrap">
+            {layers.map((layer, li) => (
+              <div key={layer.id} className="arch-section">
+
+                {/* Layer */}
+                <div
+                  className="arch-layer"
+                  style={{ background: layer.bg, border: `1.5px solid ${layer.border}` }}
+                >
+                  <div className="arch-layer-label" style={{ color: layer.color }}>
+                    {layer.label}
+                  </div>
+                  <div className="arch-layer-nodes">
+                    {layer.nodes.map(node => (
+                      <div key={node.title} className="arch-node" style={{ borderColor: layer.border }}>
+                        <span className="arch-node-icon">{node.icon}</span>
+                        <div>
+                          <div className="arch-node-title" style={{ color: layer.color }}>{node.title}</div>
+                          <div className="arch-node-sub">{node.sub}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Arrow to next layer */}
+                {li < layers.length - 1 && (() => {
+                  const conn = connections[li];
+                  return (
+                    <div className="arch-arrow">
+                      <div className="arch-arrow-line" style={{ borderColor: conn.dashed ? '#4B5563' : layers[li + 1].color, borderStyle: conn.dashed ? 'dashed' : 'solid' }} />
+                      <div className="arch-arrow-label" style={{ color: conn.dashed ? '#6B7280' : layers[li + 1].color }}>
+                        {conn.label}
+                      </div>
+                      <div className="arch-arrow-tip" style={{ color: conn.dashed ? '#4B5563' : layers[li + 1].color }}>▼</div>
+                    </div>
+                  );
+                })()}
+              </div>
+            ))}
+
+            {/* Feedback loop note */}
+            <div className="arch-feedback-note">
+              ↑ זיכרון מתעדכן בזמן אמת: events.jsonl ← כל פעולה ← shalev-patterns.md
+            </div>
+          </div>
         </div>
 
         <div className="overview-footer">
           <span>עודכן לאחרונה: {generatedAt}</span>
           <span>·</span>
-          <span>Claude System Map — SG</span>
+          <span>Claude System Architecture — SG</span>
         </div>
       </div>
     </div>
