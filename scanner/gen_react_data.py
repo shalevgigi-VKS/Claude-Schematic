@@ -280,55 +280,51 @@ def gen_mermaid_overview():
     from datetime import datetime
     lines = ['mindmap', '  root((**מערכת Claude SG**))']
 
-    # Agents
-    lines.append('    **סוכנים**')
+    # Agents — class:::agents for pastel coloring
+    lines.append('    **סוכנים**:::agents')
     for g in agent_children:
         gname = g['name']
-        lines.append(f'      **{gname}**')
-        for kid in g.get('children', [])[:6]:
-            lines.append(f'        {kid["name"]}')
-        extra = len(g.get('children',[])) - 6
-        if extra > 0:
-            lines.append(f'        ועוד {extra} סוכנים')
+        kids  = g.get('children', [])
+        count = len(kids)
+        lines.append(f'      **{gname}** ({count}):::agents')
 
-    # Skills
-    lines.append('    **סקילים**')
+    # Skills — class:::skills
+    lines.append('    **סקילים**:::skills')
     for g in skill_children:
-        gname = g['name']
         count = len(g.get('children', []))
-        lines.append(f'      **{gname}** ({count})')
+        lines.append(f'      **{g["name"]}** ({count}):::skills')
 
-    # Modes
-    lines.append('    **מצבי עבודה**')
+    # Modes — class:::modes
+    lines.append('    **מצבי עבודה**:::modes')
     if mode_auto:
-        lines.append(f'      אוטומטיים ({len(mode_auto)})')
+        lines.append(f'      אוטומטיים ({len(mode_auto)}):::modes')
     if mode_manual:
-        lines.append(f'      ידניים ({len(mode_manual)})')
+        lines.append(f'      ידניים ({len(mode_manual)}):::modes')
 
-    # MCP
-    lines.append('    **שרתי MCP**')
+    # MCP — class:::mcp
+    lines.append('    **שרתי MCP**:::mcp')
     for g in mcp_children:
         count = len(g.get('children', []))
-        lines.append(f'      **{g["name"]}** ({count})')
+        lines.append(f'      **{g["name"]}** ({count}):::mcp')
 
-    # Hooks
-    lines.append(f'    **Hooks** ({len(hooks_list)})')
+    # Hooks — class:::hooks
+    lines.append(f'    **Hooks** ({len(hooks_list)}):::hooks')
     for htype in ['PreToolUse', 'PostToolUse', 'PreCompact']:
         c = hook_count.get(htype, 0)
         if c:
-            lines.append(f'      {htype} ({c})')
+            lines.append(f'      {htype} ({c}):::hooks')
 
-    # Projects
-    lines.append('    **פרויקטים**')
+    # Projects — class:::projects
+    lines.append('    **פרויקטים**:::projects')
     for p in projs:
         status = p.get('status','active').lower()
         icon = {'complete':'✅','maintenance':'🔧','active':'🔵','frozen':'❄️','development':'🟣'}.get(status,'📁')
-        lines.append(f'      {icon} {p.get("name","?")}')
+        lines.append(f'      {icon} {p.get("name","?")}:::projects')
 
-    # Rules
-    lines.append(f'    **כללים** ({rules_count})')
-    lines.append('      Common (9 קבצים)')
-    lines.append('      שפות (8)')
+    # Rules — class:::rules
+    lines.append(f'    **כללים** ({rules_count}):::rules')
+    lines.append('      Common (9):::rules')
+    lines.append('      שפות (8):::rules')
 
     return '\n'.join(lines)
 

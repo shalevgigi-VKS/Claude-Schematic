@@ -8,17 +8,23 @@ interface Props {
 
 mermaid.initialize({
   startOnLoad: false,
-  theme: 'dark',
-  mindmap: { padding: 16 },
+  theme: 'base',
+  mindmap: { padding: 20 },
   themeVariables: {
-    darkMode: true,
-    background: '#0f0f23',
-    primaryColor: '#6366F1',
-    primaryTextColor: '#EEF2FF',
-    primaryBorderColor: '#818CF8',
-    lineColor: '#6366F1',
-    secondaryColor: '#1e1e3a',
-    tertiaryColor: '#2a2a50',
+    darkMode: false,
+    background: '#F8F9FF',
+    primaryColor: '#E0E7FF',
+    primaryTextColor: '#1e293b',
+    primaryBorderColor: '#A5B4FC',
+    lineColor: '#94A3B8',
+    secondaryColor: '#DBEAFE',
+    tertiaryColor: '#D1FAE5',
+    mainBkg: '#E0E7FF',
+    nodeBorder: '#C7D2FE',
+    clusterBkg: '#F0F4FF',
+    fontFamily: 'Heebo, Arial, sans-serif',
+    fontSize: '14px',
+    edgeLabelBackground: '#F8F9FF',
   },
 });
 
