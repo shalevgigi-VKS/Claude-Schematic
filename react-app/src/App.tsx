@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import MindMapNode from './components/MindMapNode';
+import { SystemOverview } from './components/SystemOverview';
 import { mindMapData, MindMapNodeData } from './data/mindMapData';
 import './styles/mind-map.css';
 
@@ -12,9 +13,10 @@ function App() {
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(['root']));
   const [currentRoot, setCurrentRoot] = useState<string>('root');
   const [navigationHistory, setNavigationHistory] = useState<BreadcrumbItem[]>([
-    { id: 'root', name: 'אבולוציה סכמטית' }
+    { id: 'root', name: 'אבולוציה סכמטית SG' }
   ]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOverviewOpen, setIsOverviewOpen] = useState(false);
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPanning, setIsPanning] = useState(false);
@@ -293,6 +295,9 @@ function App() {
 
         <button className="nav-btn expand-btn" onClick={expandAll}>הרחב הכל</button>
         <button className="nav-btn collapse-btn" onClick={collapseAll}>כווץ הכל</button>
+        <button className="nav-btn overview-btn" onClick={() => setIsOverviewOpen(true)}>
+          🧠 אבולוציה עכשוית
+        </button>
 
         <button
           className="nav-btn back-btn"
@@ -336,7 +341,7 @@ function App() {
               onClick={() => { navigateToNode(mindMapData); setIsMenuOpen(false); }}
             >
               <span className="project-icon">🏠</span>
-              <span>אבולוציה סכמטית</span>
+              <span>אבולוציה סכמטית SG</span>
             </button>
             {allNodes.filter(n => n.node.type !== 'file' && n.node.type !== 'reference').map(({ node, level }) => (
               <button
@@ -391,6 +396,11 @@ function App() {
           )}
         </div>
       </div>
+
+      {/* System Overview Modal */}
+      {isOverviewOpen && (
+        <SystemOverview onClose={() => setIsOverviewOpen(false)} />
+      )}
 
       {/* Legend */}
       <div className="legend-bar">

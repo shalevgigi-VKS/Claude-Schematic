@@ -8,7 +8,7 @@ export interface MindMapNodeData {
 }
 
 export const mindMapData: MindMapNodeData = { id: 'root',
-  name: 'אבולוציה סכמטית',
+  name: 'אבולוציה סכמטית SG',
   type: 'root',
   color: '#6366F1',
   description: 'מפת מערכת Claude — סוכנים, סקילים, מצבים, MCP ופרויקטים',

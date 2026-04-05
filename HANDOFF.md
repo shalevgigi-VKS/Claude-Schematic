@@ -1,12 +1,14 @@
 # Evolution Schematic — HANDOFF
-Last updated: 2026-04-03 (session 4 — COMPLETE)
+Last updated: 2026-04-05 (session 5 — SG + brain logo + אבולוציה עכשוית)
 
 ## מצב נוכחי
 - פרויקט ID: 8 (בתיקייה 8_EvolutionSchematic)
-- מצב: **פרוייקט מושלם ✅ — ללא משימות פתוחות**
-- URL: https://evolution-schematic.vercel.app
-- Stack: React 18 + TypeScript + Vite + Tailwind + shadcn/ui
-- Data: `data/snapshot.json` → `scanner/gen_react_data.py` → `react-app/src/data/mindMapData.ts`
+- מצב: **פרוייקט פעיל ✅**
+- **URL חדש (רק אתה יודע):** https://claude-brain-sg.vercel.app
+- **URL ישן (מת):** https://evolution-schematic.vercel.app → 404
+- Vercel project name: `claude-brain-sg` (שונה מ-`evolution-schematic`)
+- Stack: React 18 + TypeScript + Vite + Tailwind + shadcn/ui + **Mermaid.js**
+- Data: `data/snapshot.json` → `scanner/gen_react_data.py` → `react-app/src/data/mindMapData.ts` + `systemOverview.ts`
 
 ## אין צעד הבא — הכל פועל
 - Task Scheduler רשום: `SchematicEvolution_WeeklyScanner` — כל יום ראשון 11:00 ✅
@@ -21,6 +23,16 @@ Last updated: 2026-04-03 (session 4 — COMPLETE)
 - **D3 files נמחקו מ-root** (2026-04-03) — index.html, css/, js/, assets/ נמחקו
 - **Vercel rootDirectory = react-app** — הוגדר דרך API (prj_HzJnkA77hH633kKVTitpgAJ0PjBX)
 - **פריסה ידנית**: `cd 8_EvolutionSchematic && vercel deploy --prod --yes` (מה-root, לא מ-react-app/)
+
+## שינויים אחרונים (session 5 — 2026-04-05)
+- **URL חדש** — Vercel project renamed to `claude-brain-sg`, URL ישן הוסר מ-aliases
+- **SG בשם** — כותרת + root node + תפריט = "אבולוציה סכמטית SG"
+- **לוגו מוח** — `public/brain.svg` (neural network SVG) + `brain-og.png` (1200x630 OG)
+- **OG meta tags** — og:title, og:image, og:url, twitter:card ב-index.html
+- **Mermaid.js** — mermaid@11.14.0 הותקן; SystemOverview.tsx מרנדר mindmap diagram
+- **כפתור "🧠 אבולוציה עכשוית"** — בסרגל הניווט, פותח modal עם Mermaid full-system diagram
+- **gen_react_data.py** — מייצר גם `systemOverview.ts` עם Mermaid string + stats + generatedAt
+- **gen_brain_og.py** — script חד-פעמי ל-brain-og.png (Pillow, ללא cairosvg)
 
 ## שינויים אחרונים (session 3 — 2026-04-03)
 - **Vercel rootDirectory תוקן לצמיתות** — Vercel API + D3 files נמחקו; auto-deploy תמיד React
