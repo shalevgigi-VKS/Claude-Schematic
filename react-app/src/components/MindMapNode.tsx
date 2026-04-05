@@ -125,15 +125,16 @@ function NodeConnectors({ wrapperRef, parentRef, childRefs, color, isClosing }: 
   const calc = useCallback(() => {
     if (!wrapperRef.current || !parentRef.current || !svgRef.current) return;
 
+    // getBoundingClientRect gives correct coords regardless of CSS positioning hierarchy
     const getOffset = (el: HTMLElement, ancestor: HTMLElement) => {
-      let x = 0, y = 0;
-      let cur: HTMLElement | null = el;
-      while (cur && cur !== ancestor) {
-        x += cur.offsetLeft;
-        y += cur.offsetTop;
-        cur = cur.offsetParent as HTMLElement | null;
-      }
-      return { x, y, w: el.offsetWidth, h: el.offsetHeight };
+      const eRect = el.getBoundingClientRect();
+      const aRect = ancestor.getBoundingClientRect();
+      return {
+        x: eRect.left - aRect.left,
+        y: eRect.top  - aRect.top,
+        w: eRect.width,
+        h: eRect.height,
+      };
     };
 
     const p = getOffset(parentRef.current, wrapperRef.current);
@@ -285,8 +286,13 @@ function MindMapNode({
         <div className="node-illustration-wrapper">{getNodeIcon(node.type)}</div>
         <div className="node-content">
           <div className="node-text">
-            <span className="node-name">{node.name}</span>
-            {node.description && <span className="node-description">{node.description}</span>}
+            {node.description
+              ? <>
+                  <span className="node-description">{node.description}</span>
+                  <span className="node-name node-name-secondary">{node.name}</span>
+                </>
+              : <span className="node-name">{node.name}</span>
+            }
           </div>
           {hasChildren && (
             <div className={`node-chevron ${isExpanded ? 'rotated' : ''}`}>

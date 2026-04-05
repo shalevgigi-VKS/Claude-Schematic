@@ -1,65 +1,15 @@
-import { useEffect, useRef, useState } from 'react';
-import mermaid from 'mermaid';
-import { systemOverviewMermaid, generatedAt, systemStats } from '../data/systemOverview';
+import { useEffect } from 'react';
+import { generatedAt, systemStats } from '../data/systemOverview';
 
 interface Props {
   onClose: () => void;
 }
 
-mermaid.initialize({
-  startOnLoad: false,
-  theme: 'base',
-  mindmap: { padding: 20 },
-  themeVariables: {
-    darkMode: false,
-    background: '#F8F9FF',
-    primaryColor: '#E0E7FF',
-    primaryTextColor: '#1e293b',
-    primaryBorderColor: '#A5B4FC',
-    lineColor: '#94A3B8',
-    secondaryColor: '#DBEAFE',
-    tertiaryColor: '#D1FAE5',
-    mainBkg: '#E0E7FF',
-    nodeBorder: '#C7D2FE',
-    clusterBkg: '#F0F4FF',
-    fontFamily: 'Heebo, Arial, sans-serif',
-    fontSize: '14px',
-    edgeLabelBackground: '#F8F9FF',
-  },
-});
-
 export function SystemOverview({ onClose }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [svgContent, setSvgContent] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
-
-  useEffect(() => {
-    let cancelled = false;
-    async function render() {
-      try {
-        const { svg } = await mermaid.render('system-overview-svg', systemOverviewMermaid);
-        if (!cancelled) {
-          setSvgContent(svg);
-          setLoading(false);
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setError(String(e));
-          setLoading(false);
-        }
-      }
-    }
-    render();
-    return () => { cancelled = true; };
-  }, []);
-
-  // Close on backdrop click
   const handleBackdrop = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
   };
 
-  // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
@@ -90,25 +40,16 @@ export function SystemOverview({ onClose }: Props) {
           </button>
         </div>
 
-        <div className="overview-content" ref={containerRef}>
-          {loading && (
-            <div className="overview-loading">
-              <div className="overview-spinner" />
-              <span>בונה תרשים מערכת...</span>
-            </div>
-          )}
-          {error && (
-            <div className="overview-error">
-              <span>⚠️ שגיאה בטעינת הדיאגרמה</span>
-              <pre>{error}</pre>
-            </div>
-          )}
-          {!loading && !error && (
-            <div
-              className="overview-diagram"
-              dangerouslySetInnerHTML={{ __html: svgContent }}
-            />
-          )}
+        <div className="overview-content">
+          <img
+            src="/system-image.jpg"
+            alt="מפת מערכת Claude SG"
+            className="overview-system-image"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/brain.svg';
+              (e.target as HTMLImageElement).style.padding = '40px';
+            }}
+          />
         </div>
 
         <div className="overview-footer">

@@ -89,7 +89,8 @@ function App() {
     setExpandedNodes(allNodeIds);
     setPosition({ x: 0, y: 0 });
     setScale(1);
-    scrollToCenter(900); // after all animations settle (stagger 220ms + anim 400ms + buffer)
+    scrollToCenter(1000); // first pass
+    scrollToCenter(1800); // second pass after full DOM settle
   };
 
   const collapseAll = () => {

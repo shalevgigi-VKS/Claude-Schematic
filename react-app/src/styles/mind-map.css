@@ -536,15 +536,22 @@ body {
   word-break: break-word;
 }
 
-/* Description — prominent summary line inside each card */
+/* Description — primary Hebrew label inside each card */
 .node-description {
   display: block;
-  font-size: 10.5px;
-  color: #475569;
-  margin-top: 3px;
-  line-height: 1.4;
-  font-style: italic;
-  opacity: 0.85;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1E293B;
+  margin-top: 0;
+  line-height: 1.35;
+}
+
+.node-name-secondary {
+  display: block;
+  font-size: 10px;
+  color: #94A3B8;
+  font-weight: 400;
+  margin-top: 2px;
 }
 
 .node-chevron {
@@ -845,6 +852,13 @@ body {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.overview-system-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
 }
 
 .overview-diagram {
