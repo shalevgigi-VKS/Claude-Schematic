@@ -603,6 +603,11 @@ body {
   position: relative;
 }
 
+/* Projects node: force to rightmost position (RTL: order -1 = flex-start = right) */
+.children-row [data-node-id="projects"] {
+  order: -1;
+}
+
 /* Level 3+ (third layer and beyond) — column / queue layout */
 .children-row.column-layout {
   flex-direction: column;

@@ -311,7 +311,7 @@ function MindMapNode({
         <div className={`mind-map-children-row ${isClosing ? 'closing' : ''}`}>
           <div className={`children-row ${useColumnLayout ? 'column-layout' : ''}`}>
             {node.children!.map((child, index) => (
-              <div key={child.id} className="child-branch">
+              <div key={child.id} className="child-branch" data-node-id={child.id}>
                 <MindMapNode
                   node={child}
                   expandedNodes={expandedNodes}
